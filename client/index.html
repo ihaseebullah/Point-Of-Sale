@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+    <!--     Fonts and icons     -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
+    />
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="/src/plugins/fontawesome-free/css/all.min.css"
+    />
+    <!-- IonIcons -->
+    <link
+      rel="stylesheet"
+      href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"
+    />
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/src/dist/css/adminlte.min.css" />
+    <style>
+      #CartSelection::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        background-color: #f5f5f5;
+      }
+
+      #CartSelection::-webkit-scrollbar {
+        width: 12px;
+        background-color: #f5f5f5;
+      }
+
+      #CartSelection::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+        background-color: #555;
+      }
+    </style>
+  </head>
+  <body
+    class="hold-transition light-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed"
+  >
+    <div class="wrapper">
+      <div id="root"></div>
+    </div>
+    <!-- jQuery -->
+    <script src="/src/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="/src/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE -->
+    <script src="/src/dist/js/adminlte.js"></script>
+
+    <!-- OPTIONAL SCRIPTS -->
+    <script src="/src/plugins/chart.js/Chart.min.js"></script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
