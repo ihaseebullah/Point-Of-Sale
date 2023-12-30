@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-hot-toast";
 
+// eslint-disable-next-line react/prop-types
 function ModalComponent({ getData }) {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -49,7 +50,7 @@ function ModalComponent({ getData }) {
         backdrop="static"
         keyboard={false}
       >
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Customer Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -156,6 +157,13 @@ function ModalComponent({ getData }) {
                   className="btn btn-success"
                 >
                   Create Invoice
+                </button>
+                <button
+                  onClick={handleClose}
+                  type="submit"
+                  className="btn btn-danger mx-2"
+                >
+                  Close
                 </button>
               </div>
             </form>

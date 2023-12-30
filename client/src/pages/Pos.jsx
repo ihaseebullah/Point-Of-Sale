@@ -112,19 +112,19 @@ export default function Pos() {
                 )}
               </div>
             </div>
-            <div className="col  rounded" id="sidePanel">
+            <div className="col" style={{border:"none"}}  id="sidePanel">
               <div
                 className="card "
-                style={{
+                
+              >
+                {/* /.card-header */}
+                <div  className="card-body p-0">
+                  <table style={{
                   margin: "0px",
                   overflowY: "scroll",
                   maxHeight: "60vh",
                   minHeight: "60vh",
-                }}
-              >
-                {/* /.card-header */}
-                <div className="card-body p-0">
-                  <table className="table table-striped">
+                }} className="table table-striped">
                     <thead>
                       <tr>
                         <th>Product</th>
@@ -133,7 +133,7 @@ export default function Pos() {
                         <th>Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody style={{border:"none"}}>
                       {cart.map((item, i) => {
                         totallPrice += item.unitPrice;
                         if (
@@ -151,7 +151,9 @@ export default function Pos() {
                               <td>{item.unitPrice} PKR</td>
                               <td>{cartWithoutDupes.itemCountMap[item._id]}</td>
                               <td>
-                                <button
+                                <span
+                                
+                                role="button"
                                   onClick={() => {
                                     setCart(
                                       cart.filter((pickedItem) => {
@@ -159,10 +161,10 @@ export default function Pos() {
                                       })
                                     );
                                   }}
-                                  className="badge badge-danger"
+                                  className="badge p-2 badge-danger"
                                 >
                                   Drop
-                                </button>
+                                </span>
                               </td>
                             </tr>
                           );
@@ -182,7 +184,6 @@ export default function Pos() {
                   <div className="col-6" style={{ textAlign: "end" }}>
                     <span
                       style={{ textAlign: "end" }}
-                      className="badge badge-warning"
                     >
                       <h6> {cartPrice} PKR</h6>
                     </span>

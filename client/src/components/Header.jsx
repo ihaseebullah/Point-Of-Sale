@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Header = () => {
   return (
     <nav className="main-header navbar navbar-expand navbar-white navbar-light">
@@ -9,25 +11,25 @@ const Header = () => {
           </a>
         </li>
         <li className="nav-item d-none d-sm-inline-block">
-          <a href="/" className="nav-link">
+          <Link to="/" className="nav-link">
             Home
-          </a>
+          </Link>
         </li>
         <li className="nav-item d-none d-sm-inline-block">
-          <a href="/products" className="nav-link">
+        <Link to="/products" className="nav-link">
             Add Stock
-          </a>
+          </Link>
         </li>
         <li className="nav-item d-none d-sm-inline-block">
-          <a href="/pos" className="nav-link">
+        <Link to="/pos" className="nav-link">
             POS
-          </a>
+          </Link>
         </li>
       </ul>
       {/* Right navbar links */}
       <ul className="navbar-nav ml-auto">
         {/* Navbar Search */}
-       
+
         <li className="nav-item">
           <a
             className="nav-link"
@@ -38,7 +40,6 @@ const Header = () => {
             <i className="fas fa-expand-arrows-alt" />
           </a>
         </li>
-        
       </ul>
     </nav>
   );
