@@ -1,1 +1,1 @@
-"# Point-Of-Sale" 
+# Point of sale software (Cloud)
