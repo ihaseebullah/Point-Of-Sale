@@ -20,6 +20,7 @@ export default function Inovice({
   const [account, setAccount] = useState("");
   const [discountAmount, setDiscountAmount] = useState("");
   const [discountedTotall, setDiscountedTotall] = useState("");
+  const [sentOnce, setSentOnce] = useState(false);
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
   };
@@ -286,7 +287,7 @@ export default function Inovice({
             className="btn btn-success float-right"
           >
             <i className="far fa-credit-card mr-1" />
-            Submit Invoice
+            Sell and save invoice
             <></>
           </button>
           <button
@@ -320,8 +321,10 @@ export default function Inovice({
           <div className="row">
             <div className="col">
               <button
+                onDoubleClick={toast.error("Double Click Detected")}
                 onClick={async () => {
                   await sendPostRequest();
+
                   handleClose();
                 }}
                 className="btn btn-warning btn-sm"

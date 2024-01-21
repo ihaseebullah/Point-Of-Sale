@@ -12,7 +12,7 @@ const Header = () => {
         </li>
         <li className="nav-item d-none d-sm-inline-block">
           <Link to="/" className="nav-link">
-            Home
+          <i className="fa-solid fa-house"></i> Home
           </Link>
         </li>
         <li className="nav-item d-none d-sm-inline-block">

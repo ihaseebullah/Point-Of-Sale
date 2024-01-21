@@ -5,7 +5,6 @@ import { Spinner } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function AddProduct() {
-
   // Rendering Table
   const [products, setProducts] = useState({});
   const [refresh, setRefresh] = useState(true);
@@ -40,6 +39,46 @@ export default function AddProduct() {
   const [category, setCategory] = useState(null);
   const [description, setDescription] = useState(null);
   const [formData, setFormData] = useState({});
+  const [foundProduct, setFoundProduct] = useState({});
+  const [newProduct, setNewProduct] = useState(true);
+  useEffect(()=>{
+    
+      setProductName(foundProduct.productName);
+      setBarCode(foundProduct.barCode);
+      setUnitPrice(foundProduct.unitPrice);
+      setPurchasedAmount(foundProduct.purchasedAmount);
+      selectPurchaseDate(new Date().toLocaleDateString());
+      setBatchNo(foundProduct.batchNo + 1);
+      setDealerName(foundProduct.dealerName);
+      setDealerPhone(foundProduct.dealerPhone);
+      setCategory(foundProduct.category);
+      setDescription(foundProduct.description);
+      setFormData({
+        productName,
+        barCode,
+        unitPrice,
+        purchasedAmount,
+        purchaseDate,
+        stock,
+        batchNo,
+        dealerName,
+        dealerPhone,
+        category,
+        description,
+      });
+   
+  },[foundProduct])
+  useEffect(() => {
+    axios.get(`/add/postAdditionSearchQuery/${barCode}`).then((res) => {
+      if (Object.keys(res.data).includes("product")) {
+        setFoundProduct(res.data.product);
+        setNewProduct(false);
+      } else {
+        setNewProduct(true);
+        setFormData({});
+      }
+    });
+  }, [barCode]);
   const checkBox = useRef();
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -102,6 +141,7 @@ export default function AddProduct() {
                       type="text"
                       className="form-control"
                       id="productName"
+                      value={productName}
                       // name="productName"
                       placeholder="Enter the name of the product"
                     />
@@ -109,7 +149,7 @@ export default function AddProduct() {
                 </div>
                 <div className="col-md-4">
                   <div className="form-group">
-                    <label htmlFor="barcode">Bar Code (Optional)</label>
+                    <label htmlFor="barcode">Bar Code</label>
                     <input
                       onChange={(event) => {
                         setBarCode(event.target.value);
@@ -135,6 +175,7 @@ export default function AddProduct() {
                       step="0.01"
                       className="form-control"
                       id="unitPrice"
+                      value={unitPrice}
                       // name="unitPrice"
                       placeholder="Enter the unit price per item"
                     />
@@ -156,7 +197,11 @@ export default function AddProduct() {
                       className="form-control"
                       id="amountPurchased"
                       // name="stockQuantity"
-                      placeholder="Enter the number of items purchased"
+                      placeholder={
+                        newProduct
+                          ? "Enter the number of items purchased"
+                          : "Reload Stock Number"
+                      }
                     />
                   </div>
                 </div>
@@ -185,7 +230,8 @@ export default function AddProduct() {
                         selectPurchaseDate(event.target.value);
                         setFormData({ ...formData, purchaseDate });
                       }}
-                      type="date"
+                      value={purchaseDate}
+                      type="text"
                       className="form-control"
                       id="purchaseDate"
                       // name="purchaseDate"
@@ -205,6 +251,7 @@ export default function AddProduct() {
                       }}
                       type="text"
                       className="form-control"
+                      value={batchNo}
                       id="batchNo"
                       // name="batchNo"
                       placeholder="Enter the batch number (if applicable)"
@@ -221,9 +268,14 @@ export default function AddProduct() {
                       }}
                       type="text"
                       className="form-control"
+                      value={dealerName}
                       id="dealerName"
                       // name="dealerName"
-                      placeholder="Enter the name of the dealer"
+                      placeholder={
+                        newProduct
+                          ? `Enter the name of the dealer name`
+                          : `Old dealer name was ${foundProduct.dealerName}`
+                      }
                     />
                   </div>
                 </div>
@@ -237,9 +289,14 @@ export default function AddProduct() {
                       }}
                       type="text"
                       className="form-control"
+                      value={dealerPhone}
                       id="dealerPhone"
                       // name="dealerPhone"
-                      placeholder="Enter the dealer's phone number"
+                      placeholder={
+                        newProduct
+                          ? `Enter the phone number of the dealer`
+                          : `Old dealer phone number was ${foundProduct.dealerPhone}`
+                      }
                     />
                   </div>
                 </div>
@@ -253,6 +310,7 @@ export default function AddProduct() {
                         setCategory(event.target.value);
                         setFormData({ ...formData, category });
                       }}
+                      value={category}
                       id="category"
                       // name="category"
                       className="form-control select2"
@@ -298,6 +356,9 @@ export default function AddProduct() {
                         setFormData({ ...formData, description });
                       }}
                       type="text"
+                      value={
+                        description
+                      }
                       className="form-control"
                       id="description"
                       // name="description"

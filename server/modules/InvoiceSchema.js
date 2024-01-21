@@ -17,6 +17,6 @@ const invoiceSchema = new mongoose.Schema({
     items: Object,
 }, { timestamps: true })
 
-const Invoice = new mongoose.model("Invoices", invoiceSchema)
+const Invoice = mongoose.model("Invoices", invoiceSchema)
 
 module.exports = Invoice;

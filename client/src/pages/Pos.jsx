@@ -5,15 +5,21 @@ import toast, { Toaster } from "react-hot-toast";
 import Loader from "../components/Loader";
 import ModalComponent from "../components/modal";
 import Inovice from "../components/Invoice";
+import Search from "../components/search";
 
 export default function Pos() {
-  const [products, setProducts] = useState({});
+  const [products, setProducts] = useState([]);
   const [error, setError] = useState();
   const [cart, setCart] = useState([]);
   const [cartPrice, setCartPrice] = useState(0);
   const [cartWithoutDupes, setCartWithoutDupes] = useState({});
   const [customerData, setCustomerData] = useState({});
   const [items, setItems] = useState({});
+  const [byDefault, setByDefault] = useState(true);
+  const [search, setSearch] = useState();
+  const [searchedProducts, setSearchedProducts] = useState([]);
+  const [stockQuantity, setStocks] = useState([]);
+  const [firstRun, setFirstRun] = useState(false);
   let totallPrice = 0;
   let renderedCart = [];
   const handleData = (data) => {
@@ -30,7 +36,7 @@ export default function Pos() {
       return countMap;
     }, {});
     const itemsList = cart.reduce((countMap, item) => {
-      countMap[item.productName] = (countMap[item.productName] || 0) + 1;
+      countMap[item.barCode] = (countMap[item.barCode] || 0) + 1;
       return countMap;
     }, {});
     setCartWithoutDupes({ itemCountMap });
@@ -50,6 +56,31 @@ export default function Pos() {
     };
     fetchData();
   }, []);
+  useEffect(() => {
+    var stocks = [];
+    products.map((i) => {
+      stocks.push(i.stockQuantity);
+    });
+    setStocks(stocks);
+  }, [products]);
+
+  const handleSearch = async (search) => {
+    if (search != null) {
+      setByDefault(false);
+      setSearch(search);
+      let query = await products.filter((item, index) => {
+        return (
+          item.productName.startsWith(search) || item.barCode.startsWith(search)
+        );
+      });
+      setSearchedProducts(query);
+    } else {
+      setByDefault(true);
+    }
+  };
+  const resetSearch = () => {
+    setByDefault(true);
+  };
 
   return (
     <Page>
@@ -57,7 +88,19 @@ export default function Pos() {
       <div>
         <div className="row">
           <div className="col col-md-8">
-            <h3>Products</h3>
+            <div className="row">
+              <div className="col">
+                <h3>Products</h3>
+              </div>
+              <div className="col">
+                <Search
+                  value={""}
+                  search={992}
+                  setSearch={handleSearch}
+                  reset={resetSearch}
+                />
+              </div>
+            </div>
           </div>
           <div className="col col-md-4">
             <h3>Cart</h3>
@@ -65,16 +108,75 @@ export default function Pos() {
         </div>
         <hr />
         <div className="container-fluid">
-          <div className="row p-1">
+          <div className="row ">
             <div className="col col-md-8">
-              {products.length > 1 ? null : error ? error : <Loader />}
-              <div className="row">
-                {products.length > 0 ? (
-                  products.map((item) => {
+              {products.length > 1 ? null : error ? (
+                error
+              ) : byDefault === true ? (
+                <Loader />
+              ) : (
+                <></>
+              )}
+              {byDefault === true ? (
+                <div className="row">
+                  {products.length > 0 ? (
+                    products.map((item, i) => {
+                      return (
+                        <div key={item._id} className="col-md-3">
+                          <div className="card">
+                            <div className="card-body">
+                              <h5 className="card-title">{item.productName}</h5>
+                              <br />
+                              <p
+                                className={`badge  ${
+                                  item.stockQuantity > 10
+                                    ? "badge-success"
+                                    : item.stockQuantity === 0
+                                    ? "badge-danger"
+                                    : "badge-warning"
+                                }`}
+                                style={{ textAlign: "end" }}
+                              >
+                                {stockQuantity[i]}
+                              </p>
+                              <div className="row">
+                                <button
+                                  disabled={stockQuantity[i] < 1 ? true : false}
+                                  onClick={() => {
+                                    setCart([...cart, item]);
+                                    stockQuantity[i] = stockQuantity[i] - 1;
+                                    toast.success("Item added to cart");
+                                  }}
+                                  className="w-100 btn btn-warning"
+                                >
+                                  {stockQuantity[i] < 1
+                                    ? "Out of stock"
+                                    : "Add to Cart"}{" "}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "50vh",
+                      }}
+                    ></div>
+                  )}
+                </div>
+              ) : (
+                <div className="row">
+                  {searchedProducts.map((item, index) => {
+                    
                     return (
                       <div key={item._id} className="col-md-3">
                         <div className="card">
-                          {/* <img src="product_image.jpg" class="card-img-top" alt="Product Image"> */}
                           <div className="card-body">
                             <h5 className="card-title">{item.productName}</h5>
                             <br />
@@ -99,42 +201,34 @@ export default function Pos() {
                         </div>
                       </div>
                     );
-                  })
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "50vh",
-                    }}
-                  ></div>
-                )}
-              </div>
+                  })}
+                </div>
+              )}
             </div>
-            <div className="col" style={{border:"none"}}  id="sidePanel">
-              <div
-                className="card "
-                
-              >
+            <div className="col p-0" style={{ border: "none" }} id="sidePanel">
+              <div className="card ">
                 {/* /.card-header */}
-                <div  className="card-body p-0">
-                  <table style={{
-                  margin: "0px",
-                  overflowY: "scroll",
-                  maxHeight: "60vh",
-                  minHeight: "60vh",
-                }} className="table table-striped">
+                <div className="card-body p-0">
+                  <table
+                    style={{
+                      margin: "0px",
+                      overflowY: "scroll",
+                      maxHeight: "60vh",
+                      minHeight: "60vh",
+                    }}
+                    className="table p-0 table-striped"
+                  >
                     <thead>
                       <tr>
                         <th>Product</th>
                         <th>Price</th>
-                        <th>Quantity</th>
+                        <th>Items</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
-                    <tbody style={{border:"none"}}>
+                    <tbody style={{ border: "none" }}>
                       {cart.map((item, i) => {
+                        
                         totallPrice += item.unitPrice;
                         if (
                           Object.keys(cartWithoutDupes.itemCountMap).includes(
@@ -146,14 +240,18 @@ export default function Pos() {
                           return (
                             <tr key={item._id}>
                               <td key={Math.random() * i + 1}>
-                                {item.productName}{" "}
+                                {item.productName.substring(0,10)}{"..."}
                               </td>
-                              <td>{item.unitPrice} PKR</td>
+                              <td>
+                                {item.unitPrice.toLocaleString("en-PK", {
+                                  style: "currency",
+                                  currency: "PKR",
+                                })}
+                              </td>
                               <td>{cartWithoutDupes.itemCountMap[item._id]}</td>
                               <td>
                                 <span
-                                
-                                role="button"
+                                  role="button"
                                   onClick={() => {
                                     setCart(
                                       cart.filter((pickedItem) => {
@@ -182,9 +280,7 @@ export default function Pos() {
                     <h5>Totall</h5>
                   </div>
                   <div className="col-6" style={{ textAlign: "end" }}>
-                    <span
-                      style={{ textAlign: "end" }}
-                    >
+                    <span style={{ textAlign: "end" }}>
                       <h6> {cartPrice} PKR</h6>
                     </span>
                   </div>
