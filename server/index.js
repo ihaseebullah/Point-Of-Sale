@@ -161,6 +161,10 @@ app.get("/pos/inventory", async (req, res) => {
   const inventory = await Product.find({});
   res.json({ data: inventory });
 });
+app.get("/stats", async (req, res) => {
+  const stats = await Stats.find({});
+  res.json({ data: stats });
+});
 app.listen(3000, () => {
   console.log("listening on port 3000");
 });

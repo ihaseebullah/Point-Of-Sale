@@ -1,5 +1,5 @@
 import Page from "../components/Page";
-import React from "react";
+import React, {  } from "react";
 function Sales() {
   return (
     <React.Fragment>

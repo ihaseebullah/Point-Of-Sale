@@ -2,21 +2,29 @@ import axios from "axios";
 import Page from "../components/Page";
 import React, { useEffect, useState } from "react";
 import Chart2 from "../components/Chart2";
+import { toast, Toaster } from "react-hot-toast";
 function TodaysSales() {
   const [sales, setSales] = useState([]);
+  const [error, setError] = useState(null);
   useEffect(() => {
-    axios.get("/pos/sales/today").then((res) => setSales(res.data.data));
+    try {
+      axios.get("/pos/sales/today").then((res) => setSales(res.data.data));
+    } catch (e) {
+      toast.error(error.response ? error.response.data : error.message);
+      setError(error.response ? error.response.data : error.message);
+    }
   }, []);
   return (
     <React.Fragment>
       <Page>
+        <Toaster />
         <h4>Sales Page</h4>
         <Chart2 />
         <div className="row">
           <div className="col-12">
             <div className="card" style={{ borderRadius: "10px" }}>
               <div className="card-header">
-                <h3 className="card-title">Today's Sale</h3>
+                <h3 className="card-title">{"Today's Sale"}</h3>
                 <div className="card-tools">
                   <div
                     className="input-group input-group-sm"
@@ -50,10 +58,11 @@ function TodaysSales() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sales.map((saleItem, index) => {
+                    {sales.map((saleItem) => {
                       let discount = saleItem.discountGiven;
                       return (
                         <tr
+                          key={saleItem._id}
                           className={
                             discount >= 30
                               ? "bg-success"
@@ -75,8 +84,8 @@ function TodaysSales() {
                             ).toLocaleString("en-PK", {
                               style: "currency",
                               currency: "PKR",
-                            })}&nbsp;
-                            ({saleItem.discountGiven}%)
+                            })}
+                            &nbsp; ({saleItem.discountGiven}%)
                           </td>
                           <td>{saleItem.buyerName}</td>
                         </tr>

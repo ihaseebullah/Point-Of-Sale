@@ -1,10 +1,14 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const statsSchema = new mongoose.Schema({
-    statId:String,
-    label: { type: Array, default: ['Purchases', 'Sales'] },
-    dataSet: { type: Array, default: [0, 0] },
-})
+const statsSchema = new mongoose.Schema(
+  {
+    invoiceCounter: { type: Number, default: 0 },
+    month: { type: Number, required: true },
+    monthName: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-const Stats = mongoose.model('Stat', statsSchema)
-module.exports = { Stats }
+const Stats = mongoose.model("Stats", statsSchema);
+
+module.exports = { Stats };

@@ -3,6 +3,7 @@ const { SalesToday } = require("../modules/SalesToday");
 const { todoModal } = require("../modules/TodoSchema");
 const Product = require("../modules/productSchema");
 const { Sales } = require("../modules/salesSchema");
+const { Stats } = require("../modules/statsSchema");
 
 async function invoiceapi(req, res) {
   const invoiceData = req.body;
@@ -71,6 +72,35 @@ async function invoiceapi(req, res) {
       })
       .then(() => {
         res.json({ message: "Invoice has been created successfully" });
+      })
+      .then(async () => {
+        try {
+          const areStatsAvailable = await Stats.findOne({
+            month: new Date().getMonth(),
+          });
+          if (areStatsAvailable) {
+            const statUpdate = {
+              invoiceCounter: parseInt(areStatsAvailable.invoiceCounter) + 1,
+            };
+            const update=await Stats.findOneAndUpdate(
+              { month: new Date().getMonth() },
+              statUpdate
+            );
+            console.log("Old stats data were updated",update);
+          } else {
+            const newStat = new Stats({
+              month: new Date().getMonth(),
+              monthName: new Date().toLocaleString("default", {
+                month: "long",
+              }),
+              invoiceCounter: 1,
+            });
+            await newStat.save();
+            console.log("New Stats Created",newStat);
+          }
+        } catch (e) {
+          console.log(e.message, e);
+        }
       });
   } catch (err) {
     res.json({ message: err.message });

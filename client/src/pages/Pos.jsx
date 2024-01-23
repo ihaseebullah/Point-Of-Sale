@@ -42,6 +42,7 @@ export default function Pos() {
     setCartWithoutDupes({ itemCountMap });
     setItems({ itemsList });
     console.log(cartWithoutDupes);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
 
   useEffect(() => {
@@ -173,7 +174,6 @@ export default function Pos() {
               ) : (
                 <div className="row">
                   {searchedProducts.map((item, index) => {
-                    
                     return (
                       <div key={item._id} className="col-md-3">
                         <div className="card">
@@ -228,7 +228,6 @@ export default function Pos() {
                     </thead>
                     <tbody style={{ border: "none" }}>
                       {cart.map((item, i) => {
-                        
                         totallPrice += item.unitPrice;
                         if (
                           Object.keys(cartWithoutDupes.itemCountMap).includes(
@@ -240,7 +239,8 @@ export default function Pos() {
                           return (
                             <tr key={item._id}>
                               <td key={Math.random() * i + 1}>
-                                {item.productName.substring(0,10)}{"..."}
+                                {item.productName.substring(0, 10)}
+                                {"..."}
                               </td>
                               <td>
                                 {item.unitPrice.toLocaleString("en-PK", {
