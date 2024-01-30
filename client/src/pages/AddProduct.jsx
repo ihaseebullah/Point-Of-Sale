@@ -1,14 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Page from "../components/Page";
 import axios from "axios";
 import { Spinner } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { MainContext } from "../Context/mainContext";
 
 export default function AddProduct() {
+  const Navigate = useNavigate();
   // Rendering Table
+  const { setPrevUrl } = useContext(MainContext);
+  setPrevUrl("/addProducts");
   const [products, setProducts] = useState({});
   const [refresh, setRefresh] = useState(true);
   const [error, setError] = useState(null);
+  const { setIsLoggedIn } = useContext(MainContext);
   function relod() {
     setRefresh(!refresh);
     setProducts({});
@@ -18,6 +24,14 @@ export default function AddProduct() {
     const fetchData = async () => {
       try {
         const response = await axios.get("/add/product");
+        if (response.data.statusCode === 401) {
+          setIsLoggedIn(false);
+        } else if (response.data.statusCode === 4001) {
+          setUser({});
+          setLoading(false);
+          setIsLoggedIn(false);
+          Navigate("/signin?msg=Please Login First" + response.data.message);
+        }
         setProducts(response.data);
       } catch (error) {
         setError(error.response ? error.response.data : error.message);
@@ -41,33 +55,31 @@ export default function AddProduct() {
   const [formData, setFormData] = useState({});
   const [foundProduct, setFoundProduct] = useState({});
   const [newProduct, setNewProduct] = useState(true);
-  useEffect(()=>{
-    
-      setProductName(foundProduct.productName);
-      setBarCode(foundProduct.barCode);
-      setUnitPrice(foundProduct.unitPrice);
-      setPurchasedAmount(foundProduct.purchasedAmount);
-      selectPurchaseDate(new Date().toLocaleDateString());
-      setBatchNo(foundProduct.batchNo + 1);
-      setDealerName(foundProduct.dealerName);
-      setDealerPhone(foundProduct.dealerPhone);
-      setCategory(foundProduct.category);
-      setDescription(foundProduct.description);
-      setFormData({
-        productName,
-        barCode,
-        unitPrice,
-        purchasedAmount,
-        purchaseDate,
-        stock,
-        batchNo,
-        dealerName,
-        dealerPhone,
-        category,
-        description,
-      });
-   
-  },[foundProduct])
+  useEffect(() => {
+    setProductName(foundProduct.productName);
+    setBarCode(foundProduct.barCode);
+    setUnitPrice(foundProduct.unitPrice);
+    setPurchasedAmount(foundProduct.purchasedAmount);
+    selectPurchaseDate(new Date().toLocaleDateString());
+    setBatchNo(foundProduct.batchNo + 1);
+    setDealerName(foundProduct.dealerName);
+    setDealerPhone(foundProduct.dealerPhone);
+    setCategory(foundProduct.category);
+    setDescription(foundProduct.description);
+    setFormData({
+      productName,
+      barCode,
+      unitPrice,
+      purchasedAmount,
+      purchaseDate,
+      stock,
+      batchNo,
+      dealerName,
+      dealerPhone,
+      category,
+      description,
+    });
+  }, [foundProduct]);
   useEffect(() => {
     axios.get(`/add/postAdditionSearchQuery/${barCode}`).then((res) => {
       if (Object.keys(res.data).includes("product")) {
@@ -356,9 +368,7 @@ export default function AddProduct() {
                         setFormData({ ...formData, description });
                       }}
                       type="text"
-                      value={
-                        description
-                      }
+                      value={description}
                       className="form-control"
                       id="description"
                       // name="description"

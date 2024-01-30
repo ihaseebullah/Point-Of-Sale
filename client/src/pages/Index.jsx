@@ -1,5 +1,5 @@
 import Page from "../components/Page";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MonthlySalesChart from "../components/chart";
 import axios from "axios";
 import Boxes from "../components/Boxes";
@@ -7,70 +7,39 @@ import ChatBox from "../components/ChatBox";
 import Chart2 from "../components/Chart2";
 import TodoList from "../components/TodoList";
 import Table from "../components/Table";
+import toast from "react-hot-toast";
+import InvoiceVisualizer from "../components/InvoiceVisualizer";
+import CustomerLocationChart from "../components/CustomerLocationChart";
+import { MainContext } from "../Context/mainContext";
+import SignIn from "./SignIn";
+import { useParams } from "react-router-dom";
 
 const Index = () => {
-  const [salesDataSet, setSalesDataSet] = useState({});
-  useEffect(() => {
-    axios.get("/pos/sales").then(async (res) => {
-      var sales = {
-        January: 0,
-        February: 0,
-        March: 0,
-        April: 0,
-        May: 0,
-        June: 0,
-        July: 0,
-        August: 0,
-        September: 0,
-        October: 0,
-        November: 0,
-        December: 0,
-      };
-      await res.data.data.forEach((i) => {
-        const date = new Date(i.date);
-        const monthNames = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
-
-        if (!Object.keys(sales).includes(monthNames[date.getMonth()])) {
-          sales[monthNames[date.getMonth()]] = parseInt(i.totallWorth);
-        } else {
-          sales[monthNames[date.getMonth()]] =
-            parseInt(sales[monthNames[date.getMonth()]]) +
-            parseInt(i.totallWorth);
-        }
-      });
-      setSalesDataSet(sales);
-    });
-  }, []);
+  const { setPrevUrl } = React.useContext(MainContext);
+  setPrevUrl("/");
+  const queryParams = new URLSearchParams(location.search);
+  const msg = queryParams.get("msg");
 
   return (
     <React.Fragment>
       <Page>
         <Boxes />
-        <div className="row  p-3">
+        <div className="row  my-2">
           <div
             style={{ borderRadius: "10px" }}
-            className="col pt-2 col-lg-9 bg-white "
+            className="col pt-2 col-lg-8 bg-white "
           >
-            <MonthlySalesChart monthlySalesData={salesDataSet} />
+            <MonthlySalesChart />
           </div>
-          <div className="col col-lg-3">
-            <ChatBox />
+          <div className="col col-lg-4 pt-2 bg-white">
+            <InvoiceVisualizer />
           </div>
         </div>
-        <div style={{ borderRadius: "10px" }} className="row bg-white p-3 ">
+        <br />
+        <div
+          style={{ borderRadius: "10px" }}
+          className="row bg-white py-1  my-2"
+        >
           <br />
           <div className="col col-lg-5 ">
             <TodoList />
@@ -79,9 +48,26 @@ const Index = () => {
             <Chart2 />
           </div>
         </div>
-        <hr />
         <br />
-        <Table />
+        <div className="row my-2 bg-white py-2">
+          <div className="col col-lg-8">
+            <CustomerLocationChart />
+          </div>
+          <div className="col col-lg-4">
+            <div className="card">
+              <div className="card-header">Chats</div>
+              <div className="card-body">
+                <ChatBox />
+                <ChatBox />
+                <ChatBox />
+                <ChatBox />
+                <ChatBox />
+                <ChatBox />
+                <ChatBox />
+              </div>
+            </div>
+          </div>
+        </div>
       </Page>
     </React.Fragment>
   );

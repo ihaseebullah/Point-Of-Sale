@@ -1,3 +1,4 @@
+import { CircularProgress } from "@mui/material";
 import { Spinner } from "react-bootstrap";
 export default function Loader() {
   return (
@@ -9,7 +10,7 @@ export default function Loader() {
         height: "50vh",
       }}
     >
-      <Spinner animation="border" role="status" />
+      <Spinner/>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 const Invoice = require("../modules/InvoiceSchema");
 const { SalesToday } = require("../modules/SalesToday");
 const { todoModal } = require("../modules/TodoSchema");
+const { User } = require("../modules/User");
 const Product = require("../modules/productSchema");
 const { Sales } = require("../modules/salesSchema");
 const { Stats } = require("../modules/statsSchema");
@@ -23,6 +24,7 @@ async function invoiceapi(req, res) {
       customerAccount: invoiceData.account,
       paymentDueDate: invoiceData.paymentDueDate,
       items: invoiceData.items,
+      returned: false,
     });
 
     await newInvoice
@@ -82,11 +84,11 @@ async function invoiceapi(req, res) {
             const statUpdate = {
               invoiceCounter: parseInt(areStatsAvailable.invoiceCounter) + 1,
             };
-            const update=await Stats.findOneAndUpdate(
+            const update = await Stats.findOneAndUpdate(
               { month: new Date().getMonth() },
               statUpdate
             );
-            console.log("Old stats data were updated",update);
+            console.log("Old stats data were updated", update);
           } else {
             const newStat = new Stats({
               month: new Date().getMonth(),
@@ -96,7 +98,24 @@ async function invoiceapi(req, res) {
               invoiceCounter: 1,
             });
             await newStat.save();
-            console.log("New Stats Created",newStat);
+            console.log("New Stats Created", newStat);
+          }
+        } catch (e) {
+          console.log(e.message, e);
+        }
+      })
+      .then(async () => {
+        try {
+          const user = await User.findById(req.session.User._id);
+          if (user) {
+            await User.findByIdAndUpdate(req.session.User._id, {
+              invoicesCreated: user.invoicesCreated
+                ? user.invoicesCreated + 1
+                : 1,
+              sales: user.sales
+                ? user.sales + parseInt(invoiceData.discountedTotall)
+                : parseInt(invoiceData.discountedTotall),
+            });
           }
         } catch (e) {
           console.log(e.message, e);

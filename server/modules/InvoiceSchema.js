@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const invoiceSchema = new mongoose.Schema({
+const invoiceSchema = new mongoose.Schema(
+  {
     customerName: String,
     customerPhone: String,
     customerEmail: String,
@@ -15,8 +16,11 @@ const invoiceSchema = new mongoose.Schema({
     customerAccount: String,
     paymentDueDate: String,
     items: Object,
-}, { timestamps: true })
+    returned: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-const Invoice = mongoose.model("Invoices", invoiceSchema)
+const Invoice = mongoose.model("Invoices", invoiceSchema);
 
 module.exports = Invoice;

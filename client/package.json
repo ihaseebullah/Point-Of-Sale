@@ -10,6 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.6",
+    "@mui/joy": "^5.0.0-beta.24",
+    "@mui/material": "^5.15.6",
+    "@mui/x-charts": "^6.19.1",
     "apexcharts": "^3.45.1",
     "axios": "^1.6.2",
     "bootstrap": "^5.3.2",
@@ -18,11 +24,12 @@
     "html2pdf.js": "^0.10.1",
     "react": "^18.2.0",
     "react-apexcharts": "^1.4.1",
-    "react-bootstrap": "^2.9.2",
+    "react-bootstrap": "^2.10.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-toastify": "^9.1.3",
+    "recharts": "^2.10.4",
     "rsuite": "^5.48.1",
     "uuid": "^9.0.1"
   },
@@ -34,7 +41,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
-    "react-router-dom": "^6.21.1",
+    "react-router-dom": "^6.21.3",
     "vite": "^5.0.8"
   }
 }

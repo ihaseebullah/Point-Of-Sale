@@ -5,6 +5,7 @@ const statsSchema = new mongoose.Schema(
     invoiceCounter: { type: Number, default: 0 },
     month: { type: Number, required: true },
     monthName: { type: String, required: true },
+    returnCounter: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

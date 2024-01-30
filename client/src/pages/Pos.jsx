@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useContext, useEffect, useState } from "react";
 import Page from "../components/Page";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -6,8 +7,11 @@ import Loader from "../components/Loader";
 import ModalComponent from "../components/modal";
 import Inovice from "../components/Invoice";
 import Search from "../components/search";
+import { MainContext } from "../Context/mainContext";
 
 export default function Pos() {
+  const { setPrevUrl, setUser } = useContext(MainContext);
+  setPrevUrl("/pos");
   const [products, setProducts] = useState([]);
   const [error, setError] = useState();
   const [cart, setCart] = useState([]);
@@ -19,7 +23,7 @@ export default function Pos() {
   const [search, setSearch] = useState();
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [stockQuantity, setStocks] = useState([]);
-  const [firstRun, setFirstRun] = useState(false);
+  const { setIsLoggedIn } = useContext(MainContext);
   let totallPrice = 0;
   let renderedCart = [];
   const handleData = (data) => {
@@ -41,15 +45,23 @@ export default function Pos() {
     }, {});
     setCartWithoutDupes({ itemCountMap });
     setItems({ itemsList });
-    console.log(cartWithoutDupes);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/pos");
-        setProducts(response.data);
+        await axios.get("/pos").then((response) => {
+          if (response.data.statusCode === 401) {
+            setIsLoggedIn(false);
+          }
+          if (response.data.statusCode === 4001) {
+            setIsLoggedIn(false);
+            setUser({});
+            Navigate("/signin?msg=Please Login First" + response.data.message);
+          }
+          setProducts(response.data);
+        });
       } catch (error) {
         toast.error(error.response ? error.response.data : error.message);
         setError(error.response ? error.response.data : error.message);
@@ -69,7 +81,7 @@ export default function Pos() {
     if (search != null) {
       setByDefault(false);
       setSearch(search);
-      let query = await products.filter((item, index) => {
+      let query = await products.filter((item) => {
         return (
           item.productName.startsWith(search) || item.barCode.startsWith(search)
         );
@@ -85,7 +97,6 @@ export default function Pos() {
 
   return (
     <Page>
-      <Toaster />
       <div>
         <div className="row">
           <div className="col col-md-8">
@@ -173,7 +184,7 @@ export default function Pos() {
                 </div>
               ) : (
                 <div className="row">
-                  {searchedProducts.map((item, index) => {
+                  {searchedProducts.map((item) => {
                     return (
                       <div key={item._id} className="col-md-3">
                         <div className="card">
