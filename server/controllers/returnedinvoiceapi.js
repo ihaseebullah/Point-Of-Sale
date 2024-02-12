@@ -1,3 +1,4 @@
+const { Customer } = require("../modules/Customer");
 const Invoice = require("../modules/InvoiceSchema");
 const { SalesToday } = require("../modules/SalesToday");
 const { todoModal } = require("../modules/TodoSchema");
@@ -69,12 +70,50 @@ async function returnedinvoiceapi(req, res) {
     });
 
     await newReturnSale.save();
-
+    const userFound = await Customer.findOne({
+      accountNumber: returnData.account,
+    });
+    const invId = await Invoice.find({}).sort({ createdAt: -1 }).limit(1);
+    if (
+      userFound ? userFound.accountNumber : userFound === returnData.account
+    ) {
+      console.log(userFound);
+      const update = {
+        invoices: [...userFound.invoices, invId[0]._id],
+        account:
+          parseInt(userFound.account) -
+          (parseInt(returnData.discountedTotall) -
+            parseInt(returnData.paidAmount)),
+        dueDate: returnData.paymentDueDate,
+        assistedBy:
+          req.session.User.firstName + " " + req.session.User.lastName,
+      };
+      await Customer.findOneAndUpdate(
+        { accountNumber: returnData.account },
+        update
+      );
+    } else {
+      console.log(returnData);
+      const newCustomer = new Customer({
+        customerName: returnData.customerName,
+        customerPhone: returnData.customerPhone,
+        customerEmail: returnData.customerEmail,
+        address: returnData.address,
+        paymentMethod: returnData.paymentMethod,
+        amountRemaining: returnData.amountRemaining,
+        account: returnData.discountedTotall - returnData.paidAmount,
+        accountNumber: returnData.account,
+        invoices: invId[0]._id,
+        assistedBy:
+          req.session.User.firstName + " " + req.session.User.lastName,
+        dueDate: returnData.paymentDueDate,
+      });
+      await newCustomer.save();
+    }
     // Update stats for returns
     const areStatsAvailable = await Stats.findOne({
       month: new Date().getMonth(),
     });
-
     if (areStatsAvailable) {
       const statUpdate = {
         invoiceCounter: parseInt(areStatsAvailable.invoiceCounter) + 1,

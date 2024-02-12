@@ -8,6 +8,8 @@ import ModalComponent from "../components/modal";
 import Inovice from "../components/Invoice";
 import Search from "../components/search";
 import { MainContext } from "../Context/mainContext";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
 
 export default function Pos() {
   const { setPrevUrl, setUser } = useContext(MainContext);
@@ -24,6 +26,7 @@ export default function Pos() {
   const [searchedProducts, setSearchedProducts] = useState([]);
   const [stockQuantity, setStocks] = useState([]);
   const { setIsLoggedIn } = useContext(MainContext);
+  const [category, setCategory] = useState("");
   let totallPrice = 0;
   let renderedCart = [];
   const handleData = (data) => {
@@ -77,11 +80,16 @@ export default function Pos() {
     setStocks(stocks);
   }, [products]);
 
-  const handleSearch = async (search) => {
+  const handleSearch = async (search) => {};
+  const resetSearch = () => {
+    setCategory("");
+    setByDefault(true);
+  };
+  useEffect(() => {
     if (search != null) {
       setByDefault(false);
       setSearch(search);
-      let query = await products.filter((item) => {
+      let query = products.filter((item) => {
         return (
           item.productName.startsWith(search) || item.barCode.startsWith(search)
         );
@@ -90,11 +98,23 @@ export default function Pos() {
     } else {
       setByDefault(true);
     }
-  };
-  const resetSearch = () => {
-    setByDefault(true);
-  };
-
+  }, [search]);
+  useEffect(() => {
+    if (category) {
+      let query = products.filter((item) => {
+        return item.category === category;
+      });
+      setByDefault(false);
+      setSearchedProducts(query);
+    }
+    if (category === "non") {
+      let query = products.filter((item) => {
+        return item.category === undefined;
+      });
+      setByDefault(false);
+      setSearchedProducts(query);
+    }
+  }, [category]);
   return (
     <Page>
       <div>
@@ -108,7 +128,9 @@ export default function Pos() {
                 <Search
                   value={""}
                   search={992}
-                  setSearch={handleSearch}
+                  setSearch={(e) => {
+                    setSearch(e);
+                  }}
                   reset={resetSearch}
                 />
               </div>
@@ -122,6 +144,33 @@ export default function Pos() {
         <div className="container-fluid">
           <div className="row ">
             <div className="col col-md-8">
+              <div className="p-3">
+                <Stack direction="row" spacing={1}>
+                  {Array.from(
+                    new Set(products.map((product) => product.category))
+                  ).map((categoryi) => (
+                    <Chip
+                      key={categoryi}
+                      className="m-1 "
+                      style={{ cursor: "pointer" }}
+                      label={categoryi ? categoryi : "Category not mentioned"}
+                      onClick={() => {
+                        setCategory(categoryi ? categoryi : "non");
+                      }}
+                      variant={categoryi === category ? " " : "outlined"}
+                    />
+                  ))}
+                  <Chip
+                    style={{ cursor: "pointer" }}
+                    label={"All"}
+                    onClick={() => {
+                      setCategory(category);
+                      setByDefault(true);
+                    }}
+                    variant="outlined"
+                  />
+                </Stack>
+              </div>
               {products.length > 1 ? null : error ? (
                 error
               ) : byDefault === true ? (
@@ -184,35 +233,61 @@ export default function Pos() {
                 </div>
               ) : (
                 <div className="row">
-                  {searchedProducts.map((item) => {
-                    return (
-                      <div key={item._id} className="col-md-3">
-                        <div className="card">
-                          <div className="card-body">
-                            <h5 className="card-title">{item.productName}</h5>
-                            <br />
-                            <p
-                              className="badge badge-danger"
-                              style={{ textAlign: "end" }}
-                            >
-                              {item.unitPrice} PKR
-                            </p>
-                            <div className="row">
-                              <button
-                                onClick={() => {
-                                  setCart([...cart, item]);
-                                  toast.success("Item added to cart");
-                                }}
-                                className="w-100 btn btn-warning"
+                  {searchedProducts.length > 0 ? (
+                    searchedProducts.map((item, i) => {
+                      return (
+                        <div key={item._id} className="col-md-3">
+                          <div className="card">
+                            <div className="card-body">
+                              <h5 className="card-title">{item.productName}</h5>
+                              <br />
+                              <p
+                                className={`badge  ${
+                                  item.stockQuantity > 10
+                                    ? "badge-success"
+                                    : item.stockQuantity === 0
+                                    ? "badge-danger"
+                                    : "badge-warning"
+                                }`}
+                                style={{ textAlign: "end" }}
                               >
-                                Add to Cart{" "}
-                              </button>
+                                {item.unitPrice.toLocaleString("en-PK", {
+                                  style: "currency",
+                                  currency: "PKR",
+                                })}
+                              </p>
+                              <div className="row">
+                                <button
+                                  disabled={
+                                    item.stockQuantity < 1 ? true : false
+                                  }
+                                  onClick={() => {
+                                    setCart([...cart, item]);
+                                    stockQuantity[i] = stockQuantity[i] - 1;
+                                    toast.success("Item added to cart");
+                                  }}
+                                  className="w-100 btn btn-warning"
+                                >
+                                  {item.stockQuantity < 1
+                                    ? "Out of stock"
+                                    : "Add to Cart"}{" "}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "50vh",
+                      }}
+                    ></div>
+                  )}
                 </div>
               )}
             </div>

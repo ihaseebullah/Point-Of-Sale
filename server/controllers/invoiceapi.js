@@ -1,4 +1,6 @@
+const { Customer } = require("../modules/Customer");
 const Invoice = require("../modules/InvoiceSchema");
+const ProductReport = require("../modules/ProductReport");
 const { SalesToday } = require("../modules/SalesToday");
 const { todoModal } = require("../modules/TodoSchema");
 const { User } = require("../modules/User");
@@ -25,8 +27,10 @@ async function invoiceapi(req, res) {
       paymentDueDate: invoiceData.paymentDueDate,
       items: invoiceData.items,
       returned: false,
+      paidAmount: invoiceData.paidAmount,
+      amountRemaining: invoiceData.amountRemaining,
     });
-
+    console.log(invoiceData.account);
     await newInvoice
       .save()
       .then(async () => {
@@ -41,6 +45,45 @@ async function invoiceapi(req, res) {
                 parseInt(target.amountSold) + parseInt(invoiceData.items[item]),
             };
             await Product.findOneAndUpdate({ barCode: item }, update);
+            //update product Reports
+            const product = await ProductReport.findOne({ barCode: item });
+
+            {
+              /* eslint-disable */
+            }
+            if (product) {
+              const productReportUpdate = {
+                barCode: item,
+                profit:
+                  (target.unitPrice - target.purchasedPrice) *
+                    parseInt(invoiceData.items[item]) +
+                  parseInt(product.profit),
+                itemSold: product.itemSold
+                  ? parseInt(product.itemSold) +
+                    parseInt(invoiceData.items[item])
+                  : parseInt(invoiceData.items[item]),
+              };
+              await ProductReport.updateOne(
+                { barCode: item },
+                productReportUpdate
+              );
+            } else {
+              const newProductReport = new ProductReport({
+                barCode: target.barCode,
+                productName: target.productName,
+                unitPrice: target.unitPrice,
+                purchasedPrice: target.purchasedPrice,
+                profit:
+                  (parseInt(target.unitPrice) -
+                    parseInt(target.purchasedPrice)) *
+                  parseInt(invoiceData.items[item]),
+                itemSold: parseInt(invoiceData.items[item]),
+              });
+              await newProductReport.save();
+            }
+            {
+              /* eslint-disable */
+            }
             const updatedTarget = await Product.findOne({ barCode: item });
             const dailySales = new SalesToday({
               productName: target.productName,
@@ -72,9 +115,7 @@ async function invoiceapi(req, res) {
           res.json({ message: err.message });
         }
       })
-      .then(() => {
-        res.json({ message: "Invoice has been created successfully" });
-      })
+
       .then(async () => {
         try {
           const areStatsAvailable = await Stats.findOne({
@@ -104,6 +145,7 @@ async function invoiceapi(req, res) {
           console.log(e.message, e);
         }
       })
+
       .then(async () => {
         try {
           const user = await User.findById(req.session.User._id);
@@ -117,9 +159,56 @@ async function invoiceapi(req, res) {
                 : parseInt(invoiceData.discountedTotall),
             });
           }
+          const userFound = await Customer.findOne({
+            accountNumber: invoiceData.account,
+          });
+          const invId = await Invoice.find({}).sort({ createdAt: -1 }).limit(1);
+          await Invoice.findByIdAndUpdate(invId[0], {
+            oldAccount: userFound ? userFound.account : 0,
+          });
+          if (
+            userFound
+              ? userFound.accountNumber
+              : userFound === invoiceData.account
+          ) {
+            const update = {
+              invoices: [...userFound.invoices, invId[0]._id],
+              account:
+                parseInt(userFound.account) +
+                parseInt(invoiceData.discountedTotall) -
+                parseInt(invoiceData.paidAmount),
+              dueDate: invoiceData.paymentDueDate,
+              assistedBy:
+                req.session.User.firstName + " " + req.session.User.lastName,
+            };
+            await Customer.findOneAndUpdate(
+              { accountNumber: invoiceData.account },
+              update
+            );
+          } else {
+            console.log(invoiceData);
+            const newCustomer = new Customer({
+              customerName: invoiceData.customerName,
+              customerPhone: invoiceData.customerPhone,
+              customerEmail: invoiceData.customerEmail,
+              address: invoiceData.address,
+              paymentMethod: invoiceData.paymentMethod,
+              amountRemaining: invoiceData.amountRemaining,
+              account: invoiceData.discountedTotall - invoiceData.paidAmount,
+              accountNumber: invoiceData.account,
+              invoices: invId[0]._id,
+              assistedBy:
+                req.session.User.firstName + " " + req.session.User.lastName,
+              dueDate: invoiceData.paymentDueDate,
+            });
+            await newCustomer.save();
+          }
         } catch (e) {
           console.log(e.message, e);
         }
+      })
+      .then(() => {
+        res.json({ message: "Invoice has been created successfully" });
       });
   } catch (err) {
     res.json({ message: err.message });

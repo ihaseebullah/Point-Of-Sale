@@ -13,7 +13,7 @@ import CustomerLocationChart from "../components/CustomerLocationChart";
 import { MainContext } from "../Context/mainContext";
 import SignIn from "./SignIn";
 import { useParams } from "react-router-dom";
-
+import ProfitVisualizer from "../components/profitVisualizer";
 const Index = () => {
   const { setPrevUrl } = React.useContext(MainContext);
   setPrevUrl("/");
@@ -22,6 +22,7 @@ const Index = () => {
 
   return (
     <React.Fragment>
+      
       <Page>
         <Boxes />
         <div className="row  my-2">
@@ -50,22 +51,18 @@ const Index = () => {
         </div>
         <br />
         <div className="row my-2 bg-white py-2">
-          <div className="col col-lg-8">
-            <CustomerLocationChart />
-          </div>
-          <div className="col col-lg-4">
+          <div className="col col-lg-12">
             <div className="card">
-              <div className="card-header">Chats</div>
-              <div className="card-body">
-                <ChatBox />
-                <ChatBox />
-                <ChatBox />
-                <ChatBox />
-                <ChatBox />
-                <ChatBox />
-                <ChatBox />
+              <div className="card-header">Profit made so far</div>
+              <div className="card-body" style={{ minHeight: "33.5rem" }}>
+                <ProfitVisualizer />
               </div>
             </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+            <CustomerLocationChart />
           </div>
         </div>
       </Page>

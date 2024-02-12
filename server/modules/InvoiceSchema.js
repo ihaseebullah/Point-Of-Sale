@@ -17,6 +17,10 @@ const invoiceSchema = new mongoose.Schema(
     paymentDueDate: String,
     items: Object,
     returned: { type: Boolean, default: false },
+    paidAmount: { type: Number },
+    amountRemaining: { type: Number, default: 0 },
+    oldAccount: Number,
+
   },
   { timestamps: true }
 );

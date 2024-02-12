@@ -12,11 +12,13 @@ function TodaysSales() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [relod, setRelod] = useState(false);
+  const [allTimeSales, setAllTimeSales] = useState([])
   useEffect(() => {
     const fetchData = async () => {
       try {
         await axios.get("/pos/sales/today").then((res) => {
           setSales(res.data.data);
+          setAllTimeSales(res.data.sales);
           setLoading(false);
         });
       } catch (err) {
@@ -129,6 +131,97 @@ function TodaysSales() {
                   </p>
                 )}
               </div>
+              
+              {/* /.card-body */}
+            </div>
+            {/* /.card */}
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-12">
+            <div className="card" style={{ borderRadius: "10px" }}>
+              <div className="card-header">
+                <h3 className="card-title">{"All time Sales"}</h3>
+                <div className="card-tools">
+                  <div
+                    className="input-group input-group-sm"
+                    style={{ width: 150 }}
+                  >
+                    <input
+                      type="text"
+                      name="table_search"
+                      className="form-control float-right"
+                      placeholder="Search"
+                    />
+                    <div className="input-group-append">
+                      <button type="submit" className="btn btn-default">
+                        <i className="fas fa-search" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* /.card-header */}
+              <div
+                className="card-body table-responsive p-0"
+                
+              >
+                {loading ? (
+                  <Loader />
+                ) : !error ? (
+                  <table className="table table-hover text-nowrap">
+                    <thead>
+                      <tr>
+                        <th>Barcode</th>
+                        <th>Product Name</th>
+                        <th>Stock</th>
+                        <th>Unit Price</th>
+                        <th>Discount Given</th>
+                        <th>Buyer</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allTimeSales.map((saleItem) => {
+                        let discount = saleItem.discountGiven;
+                        return (
+                          <tr
+                            key={saleItem._id}
+                             
+                          >
+                            <td>{saleItem.itemBarcode}</td>
+                            <td>{saleItem.productName}</td>
+                            <td>{saleItem.stockPurchased}</td>
+                            <td>{saleItem.price}</td>
+                            <td>
+                              {(
+                                (saleItem.discountGiven / 100) *
+                                saleItem.price
+                              ).toLocaleString("en-PK", {
+                                style: "currency",
+                                currency: "PKR",
+                              })}
+                              &nbsp; ({saleItem.discountGiven}%)
+                            </td>
+                            <td>{saleItem.buyerName}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p style={{ textAlign: "center" }}>
+                    {error}
+                    <br />
+                    <button
+                      onClick={() => setRelod(!relod)}
+                      className="m-2 btn btn-primary btn-sm rounded-circle"
+                    >
+                      <i className="fa-solid fa-rotate-right"></i>
+                    </button>
+                  </p>
+                )}
+              </div>
+              
               {/* /.card-body */}
             </div>
             {/* /.card */}

@@ -68,6 +68,17 @@ const MonthlySalesChart = () => {
   useEffect(() => {}, [monthlySalesData]);
   const chartData = {
     options: {
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          endingShape: "rounded",
+          columnWidth: "55%",
+          distributed: true,
+        },
+      },
+      legend: {
+        show: true,
+      },
       chart: {
         type: "area",
         height: 350,

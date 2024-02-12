@@ -33,7 +33,7 @@ function Inventory() {
       }
     };
     fetchData();
-  });
+  }, []);
   return (
     <React.Fragment>
       <Page>
@@ -52,11 +52,15 @@ function Inventory() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th style={{ width: 10 }}>#</th>
                         <th>Barcode</th>
-                        <th>Product Name</th>
                         <th>Batch No</th>
-                        <th>Date</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Purchased Price</th>
+                        <th>Sale Price</th>
+                        <th>Profit</th>
+                        <th>Expiray Date</th>
+                        <th>Purchased Date</th>
                         <th>Stocks Consumption</th>
                         <th style={{ width: 40 }}>Label</th>
                       </tr>
@@ -76,11 +80,22 @@ function Inventory() {
                             : "bg-success";
                         return (
                           <tr key={product._id}>
-                            <td>{i + 1}.</td>
                             <td>{product.barCode}</td>
+                            <td>{product.batchNo}</td>
                             <td>{product.productName}</td>
-
-                            <td>{`00${product.batchNo}`}</td>
+                            <td>
+                              {product.category
+                                ? product.category
+                                : "Not mentioned"}
+                            </td>
+                            <td>{product.purchasedPrice}</td>
+                            <td>{product.unitPrice}</td>
+                            <td>{`${
+                              Math.round(product.profit) != NaN
+                                ? Math.round(product.profit)
+                                : "Not recorded"
+                            } %`}</td>
+                            <td>{product.expirayDate}</td>
                             <td>
                               {new Date(product.createdAt).toLocaleDateString(
                                 "en-US",
@@ -100,22 +115,13 @@ function Inventory() {
                               </div>
                             </td>
                             <td>
-                              <span className={`badge ${progressBarClass}`}>{`${
-                                product.purchasedQuantity -
-                                  product.stockQuantity <
-                                0
-                                  ? 0
-                                  : product.purchasedQuantity -
-                                    product.stockQuantity
-                              } /
-                        ${
-                          product.purchasedQuantity - product.stockQuantity < 0
-                            ? Math.abs(
-                                product.purchasedQuantity -
-                                  product.stockQuantity
-                              ) + product.purchasedQuantity
-                            : product.stockQuantity
-                        }`}</span>
+                              <span className={`badge ${progressBarClass}`}>
+                                {`${Math.max(
+                                  product.purchasedQuantity -
+                                    product.stockQuantity,
+                                  0
+                                )} / ${product.purchasedQuantity}`}
+                              </span>
                             </td>
                           </tr>
                         );

@@ -65,7 +65,7 @@ export default function TodoList() {
       </div>
       {!loading ? (
         !error ? (
-          <div className="card-body">
+          <div className="card-body p-0">
             <ul className="todo-list" data-widget="todo-list">
               {todoList &&
                 todoList.map((todo, i) => {

@@ -8,7 +8,6 @@ const chartSetting = {
       label: "Sales Worth (PKR)",
     },
   ],
-  width: 800,
   height: 500,
 };
 const valueFormatter = (value) =>

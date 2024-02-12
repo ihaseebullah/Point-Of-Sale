@@ -236,6 +236,16 @@ export default function InvoiceMoadl(props) {
                               )}
                             </td>
                           </tr>
+                          <tr>
+                            <th>Earlier Debts</th>
+                            <td>
+                              {invoiceData.oldAccount &&
+                                invoiceData.oldAccount.toLocaleString("en-PK", {
+                                  currency: "PKR",
+                                  style: "currency",
+                                })}
+                            </td>
+                          </tr>
 
                           <tr>
                             <th>Total:</th>
@@ -244,6 +254,30 @@ export default function InvoiceMoadl(props) {
                                 "en-PK",
                                 { currency: "PKR", style: "currency" }
                               )}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <th>Amount Paid </th>
+                            <td>
+                              {invoiceData.paidAmount
+                                ? invoiceData.paidAmount.toLocaleString(
+                                    "en-PK",
+                                    { currency: "PKR", style: "currency" }
+                                  )
+                                : 0}
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <th>Amount Remaining</th>
+                            <td> 
+                              {invoiceData.amountRemaining
+                                ? invoiceData.amountRemaining.toLocaleString(
+                                    "en-PK",
+                                    { currency: "PKR", style: "currency" }
+                                  )
+                                : 0}
                             </td>
                           </tr>
                         </tbody>

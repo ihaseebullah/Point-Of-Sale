@@ -233,7 +233,7 @@ function Profile() {
                 opacity: isHovered ? 0.6 : 1,
                 cursor: "pointer",
               }}
-              src={!user.img ? "/src/dist/img/user1-128x128.jpg" : user.img}
+              src={!user.img ? "/src/dist/img/Ddev Logo.jpg" : user.img}
               alt="User Avatar"
             />
 

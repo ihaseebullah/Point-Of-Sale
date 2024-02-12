@@ -16,7 +16,8 @@ function AccessDenied() {
 
   return (
     <React.Fragment>
-      <div className="bg-dark text-white py-5" style={{ minHeight: "51rem" }}>
+      <div className="bg-dark text-white py-5" style={{display:"flex",justifyContent:"center",margin:"0",alignItems:"center",height:"100vh"}}>
+      <div className="bg-dark text-white py-5" style={{ display:"flex",justifyContent:"center" }}>
         <div className="container py-5">
           <div className="row">
             <div className="col-md-2 text-center">
@@ -47,10 +48,15 @@ function AccessDenied() {
               </a>
             </div>
           </div>
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <p style={{ fontSize: "14px", color: "#888" }}>
+                  &copy; {new Date().getFullYear()} Decent Developers . All
+                  Rights Reserved.
+                </p>
+              </div>
         </div>
-        <div id="footer" className="text-center">
-          2023-24 All rights reserved Decent Developers
-        </div>
+        
+      </div>
       </div>
     </React.Fragment>
   );

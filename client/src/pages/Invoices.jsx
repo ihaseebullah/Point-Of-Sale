@@ -17,7 +17,20 @@ function Invoices() {
   const [error, setError] = useState(null);
   const [products, setProducts] = useState(null);
   const [relod, setRelod] = useState(false);
+  const [invoiceId, setId] = useState("");
+  const [search, setSearch] = useState([]);
   const Navigate = useNavigate();
+  useEffect(() => {
+    if (invoiceId.length > 10) {
+      setSearch(
+        InvoicesTable.filter((inv) => {
+          return inv._id === invoiceId;
+        })
+      );
+    } else {
+      setSearch([]);
+    }
+  }, [invoiceId]);
   useEffect(() => {
     axios.get("/products").then((res) => {
       setProducts(res.data.data);
@@ -52,6 +65,26 @@ function Invoices() {
         <h4>Invoices Page </h4>
         <InvoiceVisualizer loading={loading} />
         <div className="card">
+          <div className="card-header">
+            <div className="form-inline">
+              <div className="input-group" data-widget="sidebar-search">
+                <input
+                  onChange={(e) => {
+                    setId(e.target.value);
+                  }}
+                  className="form-control form-control-sidebar"
+                  type="search"
+                  placeholder="Search via invoice id"
+                  aria-label="Search"
+                />
+                <div className="input-group-append">
+                  <button className="btn btn-sidebar">
+                    <i className="fas fa-search fa-fw" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="card-body">
             {loading ? (
               <Loader />
@@ -71,47 +104,55 @@ function Invoices() {
                   </thead>
 
                   <tbody>
-                    {InvoicesTable.map((invoices) => {
-                      return (
-                        <tr key={invoices._id}>
-                          <td>
-                            {new Date(invoices.createdAt).toLocaleDateString(
-                              "en-US",
-                              { month: "long", year: "numeric", day: "2-digit" }
-                            )}
-                          </td>
-                          <td>{invoices.customerName}</td>
-                          <td>{invoices.discountOffered}%</td>
-                          <td>
-                            {invoices.totallWithDiscount.toLocaleString(
-                              "en-PK",
-                              {
-                                style: "currency",
-                                currency: "PKR",
-                              }
-                            )}
-                          </td>
-                          <td>
-                            {Object.keys(invoices.items).map((item, i) => {
-                              return (
-                                (i != 0 ? "," : "") +
-                                item +
-                                `(${invoices.items[item]})`
-                              );
-                            })}
-                          </td>
-                          <td>
-                            <p>{invoices.returned ? "Yes" : "No"}</p>
-                          </td>
-                          <td>
-                            <InvoiceMoadl
-                              products={products}
-                              id={invoices._id}
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {(search.length > 0 ? search : InvoicesTable).map(
+                      (invoices) => {
+                        return (
+                          <tr key={invoices._id}>
+                            <td>
+                              {new Date(invoices.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "long",
+                                  year: "numeric",
+                                  day: "2-digit",
+                                }
+                              )}
+                            </td>
+                            <td>{invoices.customerName}</td>
+                            <td>{invoices.discountOffered}%</td>
+                            <td>
+                              {invoices.totallWithDiscount.toLocaleString(
+                                "en-PK",
+                                {
+                                  style: "currency",
+                                  currency: "PKR",
+                                }
+                              )}
+                            </td>
+                            <td>
+                              {invoices.items
+                                ? Object.keys(invoices.items).map((item, i) => {
+                                    return (
+                                      (i != 0 ? "," : "") +
+                                      item +
+                                      `(${invoices.items[item]})`
+                                    );
+                                  })
+                                : "No items to show"}
+                            </td>
+                            <td>
+                              <p>{invoices.returned ? "Yes" : "No"}</p>
+                            </td>
+                            <td>
+                              <InvoiceMoadl
+                                products={products}
+                                id={invoices._id}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      }
+                    )}
                   </tbody>
                 </table>
                 {

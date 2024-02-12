@@ -12,9 +12,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const saltRounds = bcrypt.genSaltSync(10);
 const User = require("./modules/User").User;
-mongoose.connect(process.env.CONNECTION_URL).then(() => {
-  console.log("Successfully connected to the database");
-});
+
 //Mongoose Models
 const Product = require("./modules/productSchema");
 const Invoice = require("./modules/InvoiceSchema");
@@ -26,7 +24,11 @@ const Stats = require("./modules/statsSchema").Stats;
 //Controllers
 const invoiceapiController = require("./controllers/invoiceapi");
 const reurnedInvoiceController = require("./controllers/returnedinvoiceapi");
-
+const { Customer } = require("./modules/Customer");
+const addProductController = require("./controllers/addProduct");
+const Dealer = require("./modules/DealerSchema");
+const ProductReport = require("./modules/ProductReport");
+const authenticationController = require("./controllers/securityController");
 //Authentication
 app.use(
   session({
@@ -49,6 +51,10 @@ app.use(
   })
 );
 
+app.get("/authenticateTheConnection/:key", async (req, res) => {
+  const key = req.params.key;
+  authenticationController.authenticateTheConnection(req, res, key);
+});
 app.get("/", loginUser, async (req, res) => {
   const test = await Product.find({});
   const token = req.cookies?.jwt;
@@ -67,8 +73,8 @@ app.get("/pos", loginUser, async function (req, res) {
 });
 
 app.get("/add/product", loginUser, async (req, res) => {
-  const products = await Product.find({});
-  res.json(products);
+  const dealers = await Dealer.find({});
+  res.json(dealers);
 });
 
 //Invoice Making API
@@ -91,70 +97,7 @@ app.get(
   }
 );
 app.post("/add/product", loginUser, async (req, res) => {
-  const reqData = req.body;
-  const product = await Product.find({
-    barCode: reqData.barCode,
-  });
-  const isTheProductAlreadyAvailable = await Product.findOne({
-    barCode: reqData.barCode,
-  });
-  if (isTheProductAlreadyAvailable) {
-    console.log(isTheProductAlreadyAvailable);
-    try {
-      const update = {
-        productName: reqData.productName,
-        barCode: reqData.barCode,
-        unitPrice: parseInt(reqData.unitPrice),
-        purchasedAmount: parseInt(req.body.purchasedAmount),
-        purchasedDate: reqData.purchasedDate,
-        category: reqData.category,
-        stockQuantity:
-          parseInt(reqData.stock) + isTheProductAlreadyAvailable.stockQuantity,
-        purchasedQuantity:
-          parseInt(reqData.stock) + isTheProductAlreadyAvailable.stockQuantity,
-        batchNo: parseInt(reqData.batchNo),
-        dealerName: reqData.dealerName,
-        dealerPhone: reqData.dealerPhone,
-        description: reqData.description,
-      };
-      await Product.findOneAndUpdate({ barCode: reqData.barCode }, update).then(
-        () => {
-          res.json({ message: "New stock loaded" });
-        }
-      );
-    } catch (e) {
-      res.json({ message: e.message });
-    }
-  } else {
-    try {
-      console.log(req.body);
-      const newProduct = new Product({
-        productName: reqData.productName,
-        barCode: reqData.barCode,
-        unitPrice: parseInt(reqData.unitPrice),
-        purchasedAmount: parseInt(req.body.purchasedAmount),
-        purchasedDate: reqData.purchasedDate,
-        category: reqData.category,
-        stockQuantity: parseInt(reqData.stock),
-        purchasedQuantity: parseInt(reqData.stock),
-        batchNo: parseInt(reqData.batchNo),
-        dealerName: reqData.dealerName,
-        dealerPhone: reqData.dealerPhone,
-        description: reqData.description,
-      });
-      await newProduct.save().then(async () => {
-        console.log("The data has been saved successfully");
-      });
-      res.json({ message: "The data has been saved successfully" });
-    } catch (err) {
-      console.error(err);
-
-      res.json({
-        errorCode: err.code,
-        message: "Duplication in " + Object.keys(err.keyValue),
-      });
-    }
-  }
+  addProductController.addProduct(req, res);
 });
 
 app.get("/pos/sales", loginUser, async (req, res) => {
@@ -173,8 +116,8 @@ app.get("/pos/sales/today", loginUser, async (req, res) => {
       $lte: endOfDay,
     },
   }).sort({ createdAt: -1 });
-
-  res.json({ data: salesData });
+  const sales = await SalesToday.find({});
+  res.json({ data: salesData, sales });
 });
 
 app.get("/pos/topseller", loginUser, async (req, res) => {
@@ -224,8 +167,18 @@ app.get("/pos/dasboard/invoice/:id", loginUser, async (req, res) => {
 app.get("/pos/dashboard/info", loginUser, async (req, res) => {
   const inventory = await Product.find({});
   const invoices = await Invoice.find({});
+  const dealers = await Dealer.find({});
+  const profit = await ProductReport.find({});
   const mail = "8 Mails";
-  res.json({ data: { inventory: inventory, invoices: invoices, mails: mail } });
+  res.json({
+    data: {
+      inventory: inventory,
+      invoices: invoices,
+      mails: mail,
+      dealers: dealers,
+      profit,
+    },
+  });
 });
 app.get("/products", loginUser, async (req, res) => {
   res.json({ data: await Product.find({}) });
@@ -423,6 +376,24 @@ app.get("/updateUser", loginUser, async (req, res) => {
     res.json({ user: user, statusCode: 200 });
   }
 });
+app.get("/clients", async (req, res) => {
+  const clients = await Customer.find({});
+  res.json({ clients, statusCode: 200 });
+});
+app.get("/customer/account/:name", async (req, res) => {
+  const accounts = await Customer.find({ customerName: req.params.name });
+
+  res.json({ accounts, statusCode: 200 });
+});
+app.get("/customer/:account", async (req, res) => {
+  const details = await Customer.findOne({ accountNumber: req.params.account });
+  res.json({ details, statusCode: 200 });
+});
+app.get("/profit", async (req, res) => {
+  const profit = await ProductReport.find({});
+  res.json({ profit: profit });
+});
 app.listen(3000, () => {
   console.log("listening on port 3000");
 });
+

@@ -136,7 +136,7 @@ function ManageAccounts() {
   return (
     <React.Fragment>
       <Page>
-        <div className="alert alert-dark">
+        <div className="alert alert-secondary">
           <h6>
             <i className="fa fa-info-circle" />
             &nbsp;&nbsp;info
@@ -150,14 +150,18 @@ function ManageAccounts() {
             </li>
             <li>
               <p>
-                A <b>Privileged User</b> enjoys unrestricted access to all pages
-                within the system.
+                A <b>Privileged User</b> enjoys unrestricted access to the
+                following pages: POS, Returns, Add Product, Inventory, Home,
+                Invoices, and Sales.
               </p>
             </li>
             <li>
               <p>
-                A <b>Boss</b> has exclusive access to all system pages; there is
-                only one Boss role.
+                A <b>Boss</b> has exclusive access to all system pages,
+                including: POS, Returns, Add Product, Inventory, Home, Invoices,
+                Sales, Manage Accounts, Change Role, Delete Accounts, Add Signup
+                Accounts, Profit Monitoring, Clients Details, and Suppliers
+                Details. There is only one Boss role.
               </p>
             </li>
             <li>

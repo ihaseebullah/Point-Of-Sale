@@ -18,10 +18,15 @@ export default function Inovice({
   const [invoiceId, setInvoiceId] = useState("");
   const [orderId, setOrderId] = useState("");
   const [paymentDueDate, setPaymentDueDate] = useState("");
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState(
+    `${Math.floor(Math.random() * 2378189)}`
+  );
   const [discountAmount, setDiscountAmount] = useState("");
   const [discountedTotall, setDiscountedTotall] = useState("");
   const [sentOnce, setSentOnce] = useState(false);
+  const [paidAmount, setPaidAmount] = useState(0);
+  const [customerAccount, setCustomerAccount] = useState([]);
+  const [customerDetails, setCustomerDetails] = useState({});
   const headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
   };
@@ -49,7 +54,18 @@ export default function Inovice({
   }, []);
   let totallPrice = 0;
   let renderedCart = [];
-
+  useEffect(() => {
+    axios.get("/customer/account/" + customerData.customerName).then((res) => {
+      if (res.data.statusCode === 200) {
+        setCustomerAccount(res.data.accounts);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    axios.get("/customer/" + account).then((res) => {
+      setCustomerDetails(res.data.details);
+    });
+  }, [account]);
   async function sendPostRequest() {
     try {
       let response = await axios.post(
@@ -68,12 +84,20 @@ export default function Inovice({
           account,
           items: items.itemsList,
           discountAmount,
-          discountedTotall,
+          discountedTotall: customerDetails
+            ? discountedTotall + customerDetails.account
+            : discountedTotall,
+          paidAmount,
+          amountRemaining: customerDetails
+            ? discountedTotall - paidAmount + customerDetails.account
+            : discountedTotall - paidAmount,
         },
         { headers }
       );
       toast.success(response.data.message);
     } catch (err) {
+      console.log(err);
+      console.log(err);
       toast.error("Something went wrong");
     }
   }
@@ -150,14 +174,26 @@ export default function Inovice({
           />
           <br />
           <label>Account : </label>
-          <input
+          <select
             onChange={(e) => {
               setAccount(e.target.value);
             }}
             style={{ border: "none" }}
             type="text"
+            className="form-control"
             placeholder="Specify recepient account"
-          />
+          >
+            {customerAccount.map((account) => {
+              return (
+                <option key={account._id} value={account.accountNumber}>
+                  {account.accountNumber}-{account.customerName} from{" "}
+                  {account.address}
+                </option>
+              );
+            })}
+            <option value={Math.floor(Math.random() * 1232213)}>New </option>
+          </select>
+
           <br />
         </div>
         {/* /.col */}
@@ -255,13 +291,52 @@ export default function Inovice({
                     PKR
                   </td>
                 </tr>
+                <tr>
+                  <th>Old Debts</th>
+                  <td>{customerDetails ? customerDetails.account : 0} PKR</td>
+                </tr>
 
                 <tr>
                   <th>Total:</th>
                   <td>
-                    {Math.floor(
-                      totallPrice - totallPrice * (customerData.discount / 100)
-                    )}{" "}
+                    {customerDetails
+                      ? customerDetails.account +
+                        Math.floor(
+                          totallPrice -
+                            totallPrice * (customerData.discount / 100)
+                        )
+                      : Math.floor(
+                          totallPrice -
+                            totallPrice * (customerData.discount / 100)
+                        )}{" "}
+                    PKR
+                  </td>
+                </tr>
+                <tr>
+                  <th>Amount client needs to pay:</th>
+                  <td>
+                    <input
+                      onChange={(e) => {
+                        setPaidAmount(e.target.value);
+                      }}
+                    />
+                    PKR
+                  </td>
+                </tr>
+                <tr>
+                  <th>Amount Remaining:</th>
+                  <td>
+                    {customerDetails
+                      ? customerDetails.account +
+                        Math.floor(
+                          totallPrice -
+                            totallPrice * (customerData.discount / 100)
+                        ) -
+                        paidAmount
+                      : Math.floor(
+                          totallPrice -
+                            totallPrice * (customerData.discount / 100)
+                        ) - paidAmount}
                     PKR
                   </td>
                 </tr>

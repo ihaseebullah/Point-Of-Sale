@@ -8,7 +8,6 @@ export default function Search(props) {
         props.setSearch(barcode)
     }
     const reset = () => {
-        setBarCode(' ')
         props.reset()
     }
     return (

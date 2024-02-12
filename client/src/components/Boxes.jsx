@@ -8,6 +8,9 @@ export default function Boxes() {
   const [inContact3, setIncontact3] = useState(false);
   const [inContact4, setIncontact4] = useState(false);
   const [inContact5, setIncontact5] = useState(false);
+  const [inContact6, setIncontact6] = useState(false);
+  const [inContact7, setIncontact7] = useState(false);
+  const [inContact8, setIncontact8] = useState(false);
   const [inventory, setInventory] = useState(0);
   const [sales, setSale] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -16,6 +19,9 @@ export default function Boxes() {
   const [invoices, setInvoices] = useState(0);
   const [mails, setMails] = useState(0);
   const [returns, setReturns] = useState(0);
+  const [purchases, setPurchases] = useState(0);
+  const [profit, setProfit] = useState(0);
+  const [maxProfit, setMaxProfit] = useState({});
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -51,7 +57,31 @@ export default function Boxes() {
               currency: "PKR",
             })
           );
+          let purchases = 0;
+          console.log(res.data.data.dealers);
+          res.data.data.dealers.map((dealer) => {
+            if (dealer.totallPurchases) {
+              purchases += dealer.totallPurchases;
+            }
+          });
+          setPurchases(purchases);
           setMails(res.data.data.mails);
+          let maxProfitt = res.data.data.profit.map((profit) => {
+            if (profit.profit === "NaN") {
+              return 0;
+            }
+            return parseInt(profit.profit);
+          });
+          let ProfitableProduct = res.data.data.profit.filter((profit) => {
+            return profit.profit === `${Math.max(...maxProfitt)}`;
+          });
+          setMaxProfit(ProfitableProduct);
+          setProfit(
+            maxProfitt.reduce(
+              (acumulator, currentValue) => acumulator + currentValue,
+              0
+            )
+          );
           setLoading(false);
         });
       } catch (err) {
@@ -147,6 +177,63 @@ export default function Boxes() {
           name="Returns"
           anchor="returns"
           icon={4}
+        />
+      </div>
+      <div
+        className={`col-md-3 col-sm-6 col-12`}
+        onMouseEnter={() => {
+          setIncontact6(true);
+        }}
+        onMouseLeave={() => {
+          setIncontact6(false);
+        }}
+      >
+        <Box
+          inContact={inContact6}
+          value={purchases.toLocaleString("en-PK", {
+            style: "currency",
+            currency: "PKR",
+          })}
+          name="Purchases"
+          anchor="suppliers"
+          icon={5}
+        />
+      </div>
+      <div
+        className={`col-md-3 col-sm-6 col-12`}
+        onMouseEnter={() => {
+          setIncontact7(true);
+        }}
+        onMouseLeave={() => {
+          setIncontact7(false);
+        }}
+      >
+        <Box
+          inContact={inContact7}
+          value={profit.toLocaleString("en-PK", {
+            style: "currency",
+            currency: "PKR",
+          })}
+          name="Net Profit"
+          anchor="profit"
+          icon={6}
+        />
+      </div>
+      <div
+        className={`col-md-3 col-sm-6 col-12`}
+        onMouseEnter={() => {
+          setIncontact8(true);
+        }}
+        onMouseLeave={() => {
+          setIncontact8(false);
+        }}
+      >
+        <Box
+          inContact={"success"}
+          value={maxProfit[0]?maxProfit[0].productName:"Calculating..."}
+          name="Most Profitable Product"
+          anchor="profit"
+          icon={7}
         />
       </div>
     </div>

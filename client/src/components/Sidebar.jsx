@@ -14,10 +14,10 @@ const Sidebar = () => {
         {/* Brand Logo */}
         <a href="index3.html" className="brand-link">
           <img
-            src="/src/dist/img/AdminLTELogo.png"
+            src="/src/dist/img/Ddev Logo.jpg"
             alt="AdminLTE Logo"
             className="brand-image img-circle elevation-3"
-            style={{ opacity: ".6" }}
+            style={{ height: "2.3rem", width: "2.3rem", objectFit: "cover" }}
           />
           <span className="brand-text font-weight-light">Point Of Sale</span>
         </a>
@@ -28,16 +28,19 @@ const Sidebar = () => {
             <Link to="/accounts/me">
               <div className="image">
                 <img
-                  src={user.img ? user.img : "/src/dist/img/AdminLTELogo.png"}
+                  src={user.img ? user.img : "/src/dist/img/Ddev Logo.jpg"}
                   className="img-circle elevation-2"
                   alt="User Image"
-                  style={{ height: "2.3rem", width: "2.3rem" }}
+                  style={{
+                    height: "2.3rem",
+                    width: "2.3rem",
+                    objectFit: "cover",
+                  }}
                 />
               </div>
             </Link>
             <div className="info">
-              
-            <Link to="/accounts/me" className="d-block">
+              <Link to="/accounts/me" className="d-block">
                 {user.firstName} {user.lastName}
               </Link>
             </div>
@@ -106,6 +109,12 @@ const Sidebar = () => {
                 </Link>
               </li>
               <li className="nav-item">
+                <Link to="/profit" className="nav-link">
+                  <i className="fa-solid fa-tv nav-icon"></i>
+                  <p>Profit Monitor</p>
+                </Link>
+              </li>
+              <li className="nav-item">
                 <Link to="/invoices" className="nav-link">
                   <i className="fa-solid fa-receipt nav-icon"></i>
                   <p>Invoices</p>
@@ -117,6 +126,20 @@ const Sidebar = () => {
                   <p>Mails</p>
                 </Link>
               </li>
+              <li className="nav-header">Customers and Suppliers</li>
+              <li className="nav-item">
+                <Link to="/clients" className="nav-link">
+                  <i class="fa-solid fa-children nav-icon"></i>
+                  <p>Registered Clients</p>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/suppliers" className="nav-link">
+                  <i class="fa-solid fa-user-tie nav-icon"></i>
+                  <p>Our Suppliers</p>
+                </Link>
+              </li>
+
               <li className="nav-header">Accounts and settings</li>
               <li className="nav-item">
                 <Link to="/accounts/me" className="nav-link">

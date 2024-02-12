@@ -7,13 +7,16 @@ export default function Box(props) {
     <i className="fa-solid fa-file-invoice-dollar"></i>,
     <i className="far fa-envelope" />,
     <i className="fa-solid fa-rotate-left nav-icon" />,
+    <i class="fa-solid fa-warehouse"></i>,
+    <i class="fa-solid fa-up-long"></i>,
+    <i class="fa-solid fa-heart-circle-bolt"></i>
   ];
   return (
     <Link style={{ color: "Black" }} to={`/${props.anchor}`}>
       <div
         className={`info-box ${
           props.inContact === false ? null : "bg-primary"
-        }`}
+        } ${props.inContact === "success" ? "bg-success" : null}`}
         style={{
           background: "rgba(000, 000, 000, 0.2)",
           borderRadius: 10,

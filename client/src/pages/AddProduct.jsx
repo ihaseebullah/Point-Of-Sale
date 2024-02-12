@@ -11,13 +11,13 @@ export default function AddProduct() {
   // Rendering Table
   const { setPrevUrl } = useContext(MainContext);
   setPrevUrl("/addProducts");
-  const [products, setProducts] = useState({});
+  const [dealers, setDealers] = useState({});
   const [refresh, setRefresh] = useState(true);
   const [error, setError] = useState(null);
   const { setIsLoggedIn } = useContext(MainContext);
   function relod() {
     setRefresh(!refresh);
-    setProducts({});
+    setDealers({});
     setError(null);
   }
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function AddProduct() {
           setIsLoggedIn(false);
           Navigate("/signin?msg=Please Login First" + response.data.message);
         }
-        setProducts(response.data);
+        setDealers(response.data);
       } catch (error) {
         setError(error.response ? error.response.data : error.message);
       }
@@ -55,6 +55,12 @@ export default function AddProduct() {
   const [formData, setFormData] = useState({});
   const [foundProduct, setFoundProduct] = useState({});
   const [newProduct, setNewProduct] = useState(true);
+  const [purchasedPrice, setPurchasePrice] = useState("");
+  const [profit, setProfit] = useState("");
+  const [expirayDate, setexpirayDate] = useState("");
+  const [dealerAccountNumber, setdealerAccountNumber] = useState("");
+  const [amountDueTill, setAmountDueTill] = useState("");
+  const [amountPaid, setAmountPaid] = useState(0);
   useEffect(() => {
     setProductName(foundProduct.productName);
     setBarCode(foundProduct.barCode);
@@ -78,6 +84,12 @@ export default function AddProduct() {
       dealerPhone,
       category,
       description,
+      purchasedPrice,
+      profit,
+      expirayDate,
+      dealerAccountNumber,
+      amountDueTill,
+      amountPaid,
     });
   }, [foundProduct]);
   useEffect(() => {
@@ -106,13 +118,20 @@ export default function AddProduct() {
             barCode: barCode,
             unitPrice: unitPrice,
             purchaseDate: purchaseDate,
-            purchasedAmount: unitPrice * stock,
+            purchasedAmount: purchasedPrice * stock,
             stock: stock,
             batchNo: batchNo,
             dealerName: dealerName,
             dealerPhone: dealerPhone,
             category: category,
             description: description,
+            purchasedPrice,
+            profit,
+            expirayDate,
+            dealerAccountNumber,
+            amountDueTill,
+            amountPaid,
+            dealerAccountNumber,
           },
           { headers }
         )
@@ -142,7 +161,23 @@ export default function AddProduct() {
           <form onSubmit={submitForm}>
             <div className="card-body">
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="barcode">Bar Code</label>
+                    <input
+                      onChange={(event) => {
+                        setBarCode(event.target.value);
+                        setFormData({ ...formData, barCode });
+                      }}
+                      type="text"
+                      className="form-control"
+                      id="barcode"
+                      // name="barCode"
+                      placeholder="Enter barcode if available"
+                    />
+                  </div>
+                </div>
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="productName">Product Name</label>
                     <input
@@ -159,25 +194,10 @@ export default function AddProduct() {
                     />
                   </div>
                 </div>
-                <div className="col-md-4">
+
+                <div className="col-md-3">
                   <div className="form-group">
-                    <label htmlFor="barcode">Bar Code</label>
-                    <input
-                      onChange={(event) => {
-                        setBarCode(event.target.value);
-                        setFormData({ ...formData, barCode });
-                      }}
-                      type="text"
-                      className="form-control"
-                      id="barcode"
-                      // name="barCode"
-                      placeholder="Enter barcode if available"
-                    />
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <div className="form-group">
-                    <label htmlFor="unitPrice">Unit Price</label>
+                    <label htmlFor="unitPrice">Sale Price</label>
                     <input
                       onChange={(event) => {
                         setUnitPrice(event.target.value);
@@ -189,13 +209,61 @@ export default function AddProduct() {
                       id="unitPrice"
                       value={unitPrice}
                       // name="unitPrice"
-                      placeholder="Enter the unit price per item"
+                      placeholder="Enter the sale price per item"
+                    />
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="unitPrice">Purchased Price</label>
+                    <input
+                      onChange={(event) => {
+                        setPurchasePrice(event.target.value);
+                        setFormData({ ...formData, purchasedPrice });
+                      }}
+                      type="number"
+                      step="0.01"
+                      className="form-control"
+                      id="unitPrice"
+                      value={purchasedPrice}
+                      // name="unitPrice"
+                      placeholder="Enter the purchased price per item"
                     />
                   </div>
                 </div>
               </div>
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="amountPurchased">Profit Percentage</label>
+                    <input
+                      onChange={(event) => {
+                        setProfit(
+                          Math.round(
+                            ((unitPrice - purchasedPrice) / purchasedPrice) *
+                              100
+                          )
+                        );
+                        setFormData({ ...formData, profit });
+                      }}
+                      type="text"
+                      className={`form-control ${
+                        Math.round(
+                          ((unitPrice - purchasedPrice) / purchasedPrice) * 100
+                        ) > 0
+                          ? "text-success"
+                          : "text-danger"
+                      }`}
+                      id="amountPurchased"
+                      value={`${Math.round(
+                        ((unitPrice - purchasedPrice) / purchasedPrice) * 100
+                      )} %`}
+                      // name="stockQuantity"
+                      placeholder={profit}
+                    />
+                  </div>
+                </div>
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="amountPurchased">
                       Amount Purchased (*Stock)
@@ -217,7 +285,7 @@ export default function AddProduct() {
                     />
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="purchasedAmount">Purchased Amount</label>
                     <input
@@ -227,14 +295,14 @@ export default function AddProduct() {
                       }}
                       type="number"
                       className="form-control"
-                      value={unitPrice * stock}
+                      value={purchasedPrice * stock}
                       id="purchasedAmount"
                       // name="purchasedAmount"
                       placeholder="Enter the total amount spent"
                     />
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="purchaseDate">Purchased Date</label>
                     <input
@@ -253,7 +321,7 @@ export default function AddProduct() {
                 </div>
               </div>
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="batchNo">Batch No:</label>
                     <input
@@ -270,7 +338,7 @@ export default function AddProduct() {
                     />
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="dealerName">Dealer Name</label>
                     <input
@@ -291,7 +359,7 @@ export default function AddProduct() {
                     />
                   </div>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="dealerPhone">Dealer Phone</label>
                     <input
@@ -312,9 +380,72 @@ export default function AddProduct() {
                     />
                   </div>
                 </div>
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="dealerPhone">Expiray Date</label>
+                    <input
+                      onChange={(event) => {
+                        setexpirayDate(event.target.value);
+                        setFormData({ ...formData, setexpirayDate });
+                      }}
+                      type="date"
+                      className="form-control"
+                      value={expirayDate}
+                      id="dealerPhone"
+                      // name="dealerPhone"
+                      placeholder={
+                        newProduct
+                          ? `Enter the phone number of the dealer`
+                          : `Old dealer phone number was ${foundProduct.expirayDate}`
+                      }
+                    />
+                  </div>
+                </div>
               </div>
               <div className="row">
-                <div className="col-md-4">
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="dealerPhone">Dealer Account Number</label>
+                    <input
+                      onChange={(event) => {
+                        setdealerAccountNumber(event.target.value);
+                        setFormData({ ...formData, dealerAccountNumber });
+                      }}
+                      type="text"
+                      className="form-control"
+                      value={dealerAccountNumber}
+                      required
+                      id="dealerPhone"
+                      // name="dealerPhone"
+                      placeholder={
+                        newProduct
+                          ? `Enter the phone number of the dealer`
+                          : `Old dealer phone number was ${foundProduct.dealerAccountNumber}`
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <div className="form-group">
+                    <label htmlFor="dealerPhone">Amount Paid To dealer</label>
+                    <input
+                      onChange={(event) => {
+                        setAmountPaid(event.target.value);
+                        setFormData({ ...formData, amountPaid });
+                      }}
+                      type="Number"
+                      className="form-control"
+                      value={amountPaid}
+                      required
+                      id="dealerPhone"
+                      // name="dealerPhone"
+                      placeholder={
+                        "Enter the amount paid to dealer the amount remaining will be generated"
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="category">Category</label>
                     <select
@@ -359,7 +490,8 @@ export default function AddProduct() {
                     </select>
                   </div>
                 </div>
-                <div className="col-md-8">
+
+                <div className="col-md-3">
                   <div className="form-group">
                     <label htmlFor="dealerName">Description</label>
                     <input
@@ -403,7 +535,7 @@ export default function AddProduct() {
               <div className="card-header">
                 <div className="row">
                   <div className="col">
-                    <h3 className="card-title">Purchased Products</h3>
+                    <h3 className="card-title">Our Suppliers</h3>
                   </div>
                   <div className="col" style={{ textAlign: "end" }}>
                     <span
@@ -419,49 +551,27 @@ export default function AddProduct() {
               </div>
 
               <div className="card-body">
-                {products.length > 0 ? (
+                {dealers.length > 0 ? (
                   <table className="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Barcode</th>
-                        <th>Product Name</th>
-                        <th>Batch No</th>
-                        <th>Stock Quantity</th>
-                        <th>Category</th>
-                        <th>Unit Price</th>
-                        <th>Description</th>
+                        <th>Dealer Account Number</th>
+                        <th>Dealer Name</th>
+                        <th>Dealer Phone</th>
+                        <th>Dues</th>
+                        <th>Aliance Since</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {products.length > 0
-                        ? products.map((product, index) => {
+                      {dealers.length > 0
+                        ? dealers.map((dealer, index) => {
                             return (
-                              <tr key={product._id}>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.createdAt}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.barCode}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.productName}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.batchNo}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.stockQuantity}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.category}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.unitPrice}
-                                </td>
-                                <td key={Math.random() * (index + 1)}>
-                                  {product.description}
-                                </td>
+                              <tr key={dealer._id}>
+                                <td>{dealer.accountNumber}</td>
+                                <td>{dealer.name}</td>
+                                <td>{dealer.phone}</td>
+                                <td>{dealer.account}</td>
+                                <td>{new Date(dealer.createdAt).toLocaleDateString("en-US",{dateStyle:"full"})}</td>
                               </tr>
                             );
                           })

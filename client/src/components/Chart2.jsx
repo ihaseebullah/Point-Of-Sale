@@ -43,8 +43,10 @@ export default function Chart2() {
     },
     plotOptions: {
       bar: {
-        borderRadius: 4,
         horizontal: true,
+        endingShape: "rounded",
+        columnWidth: "30%",
+        distributed: true,
       },
     },
     dataLabels: {
@@ -57,11 +59,14 @@ export default function Chart2() {
   };
 
   return (
-    <div className="card" style={{
-      minHeight: "28rem",
-      maxHeight: "28rem",
-      overflowY: "scroll",
-    }}>
+    <div
+      className="card"
+      style={{
+        minHeight: "28rem",
+        maxHeight: "28rem",
+        overflowY: "scroll",
+      }}
+    >
       <div className="card-header">
         <h3 className="card-title">
           <i className="fa-solid fa-chart-bar mr-2"></i>
