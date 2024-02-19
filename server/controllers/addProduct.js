@@ -8,9 +8,10 @@ async function dealersEnrollmentAndUpdationSystem(req, res) {
     accountNumber: req.body.dealerAccountNumber,
   });
   if (dealer) {
-    console.log(true)
+    console.log((dealer.totallPurchases ? parseInt(dealer.totallPurchases) : 0))
     let update = {
       purchases: [...dealer.purchases, invoiceId],
+      totallPurchases: (dealer.totallPurchases ? parseInt(dealer.totallPurchases) : 0) + parseInt(req.body.totallAmount),
       account:
         parseInt(req.body.totallAmount) -
         parseInt(req.body.amountPaid) +
@@ -26,6 +27,7 @@ async function dealersEnrollmentAndUpdationSystem(req, res) {
     const newDealer = new Dealer({
       purchases: [invoiceId],
       name: req.body.dealerName,
+      totallPurchases: req.body.totallAmount,
       phone: req.body.dealerPhone,
       accountNumber: Math.floor(Math.random() * 3621736),
       account: parseInt(req.body.totallAmount) - parseInt(req.body.amountPaid),

@@ -11,7 +11,6 @@ const cutomerSchema = new mongoose.Schema(
     account: {
       type: Number,
       default: Math.random() * 2374672346,
-      unique: true,
     },
     accountNumber: { type: Number },
     assistedBy: String,
