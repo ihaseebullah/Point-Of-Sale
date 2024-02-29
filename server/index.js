@@ -31,6 +31,7 @@ const ProductReport = require("./modules/ProductReport");
 const authenticationController = require("./controllers/securityController");
 const { Expense } = require("./modules/ExpenseSchema");
 const { DealerInvoices } = require("./modules/DealerSchema");
+const { RESFUNDS } = require("./modules/resedualFunds@dealer");
 //Authentication
 app.use(
   session({
@@ -424,8 +425,83 @@ app.get("/api/pos/get/account/:name", async (req, res) => {
 });
 app.get('/pos/suppliers/get/invoces/:id', async (req, res) => {
   const invoices = await DealerInvoices.find({ accountNumber: req.params.id })
-  res.json(invoices).status(200);
+  const resFundsInvoices = await RESFUNDS.find({ accountNumber: req.params.id })
+  res.json({ invoices, resFundsInvoices }).status(200);
 })
+app.get('/pos/get/invoice/markPaid/:invoiceId', async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.invoiceId)
+    console.log(invoice)
+    const client = await Customer.findOne({ accountNumber: invoice.customerAccount })
+    const update = {
+      invoiceStatus: "Paid Completely",
+      amountRemaining: 0
+    }
+    const updateAccountDebts = {
+      account: parseInt(client.account) - ((invoice.debts + invoice.totallWithDiscount) - invoice.paidAmount)
+    }
+    await Customer.findOneAndUpdate({ accountNumber: invoice.customerAccount }, updateAccountDebts).then(async () => {
+      await Invoice.findByIdAndUpdate(req.params.invoiceId, update).then(() => {
+        res.json({ statusCode: 200, message: "Status updated to paid completely" })
+      })
+    })
+  } catch (e) {
+    res.json({ statusCode: 401, message: e.message })
+  }
+})
+
+// app.post('/api/supplier/dues/payment', async (req, res) => {
+//   try {
+//     const reqData = req.body;
+//     const dealer = await Dealer.findOne({ accountNumber: reqData.accountNumber })
+//     if (dealer.account > parseInt(reqData.amount)) {
+//       const updateDealerAccount = {
+//         account: dealer.account - parseInt(reqData.amount)
+//       }
+//       await Dealer.findOneAndUpdate({ accountNumber: reqData.accountNumber }, updateDealerAccount);
+//       res.json({ statusCode: 200, message: "Amount deducted from the account" })
+//     } else {
+//       res.json({ message: "You don't owe him that much", statusCode: 402 })
+//     }
+//   } catch (e) {
+//     res.json({ message: e.message, statusCode: 401 })
+//   }
+// })
+app.post('/api/supplier/dues/payment', async (req, res) => {
+  try {
+    const { accountNumber, amount, name } = req.body;
+    const dealer = await Dealer.findOne({ accountNumber });
+    if (!dealer) {
+      return res.json({ message: 'Supplier not found', statusCode: 404 });
+    }
+    // Handle insufficient account balance:
+    if (dealer.account < parseInt(amount)) {
+      return res.json({ message: 'The Supplier does not owe you this much', statusCode: 403 });
+    } else {
+      const newAccountBalance = dealer.account - parseInt(amount);
+      const isFullPayment = newAccountBalance === 0;
+      await Dealer.findOneAndUpdate({ accountNumber }, { account: newAccountBalance, isFullPayment: isFullPayment }).then((async () => {
+        const resFunds = new RESFUNDS({
+          amountPaid: parseInt(amount),
+          amountRemains: newAccountBalance,
+          accountNumber: accountNumber,
+          dealerName: name,
+          assistedBy: req.session.User.firstName + ' ' + req.session.User.lastName,
+        })
+        await resFunds.save()
+      }));
+      // Determine and set `isFullPayment` status:
+      res.json({
+        message: 'Payment successful',
+        statusCode: 200
+      });
+    }
+  } catch (error) {
+    console.error('Error in supplier dues payment:', error);
+    res.json({ message: 'Internal server error' });
+  }
+});
+
 app.listen(3000, () => {
   console.log("listening on port 3000");
 });

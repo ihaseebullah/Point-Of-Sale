@@ -10,7 +10,7 @@ const cutomerSchema = new mongoose.Schema(
     country: { type: String },
     account: {
       type: Number,
-      default: Math.random() * 2374672346,
+      unique: false
     },
     accountNumber: { type: Number },
     assistedBy: String,

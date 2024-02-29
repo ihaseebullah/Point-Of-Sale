@@ -15,7 +15,7 @@ const invoiceSchema = new mongoose.Schema(
     orderID: String,
     customerAccount: String,
     paymentDueDate: String,
-    inovoiceStatus: String,
+    invoiceStatus: String,
     items: Object,
     returned: { type: Boolean, default: false },
     paidAmount: { type: Number },

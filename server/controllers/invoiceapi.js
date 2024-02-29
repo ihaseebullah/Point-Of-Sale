@@ -12,6 +12,9 @@ async function invoiceapi(req, res) {
   const invoiceData = req.body;
   console.log(invoiceData);
   try {
+
+    let amountRemaining = (parseInt(invoiceData.debts) + parseInt(invoiceData.discountedTotall2) - parseInt(invoiceData.paidAmount));
+    console.log(amountRemaining)
     const newInvoice = new Invoice({
       customerName: invoiceData.customerName,
       customerPhone: invoiceData.customerPhone,
@@ -29,10 +32,15 @@ async function invoiceapi(req, res) {
       items: invoiceData.items,
       returned: false,
       paidAmount: invoiceData.paidAmount,
-      amountRemaining: invoiceData.amountRemaining,
+      amountRemaining: amountRemaining,
       debts: invoiceData.debts,
+      invoiceStatus: (amountRemaining === 0 ? "Paid Completely" : "Incomplete payment")
     });
-    console.log(invoiceData.account);
+    const lastInvoice = await Invoice.findOne({ customerAccount: newInvoice.customerAccount }).sort({ createdAt: -1 })
+    const updateThePreviousInvoice = {
+      invoiceStatus: lastInvoice.invoiceStatus === "Incomplete payment" ? "New Invoice Available" : "Paid Completely"
+    }
+    await Invoice.findByIdAndUpdate(lastInvoice._id, updateThePreviousInvoice)
     await newInvoice
       .save()
       .then(async () => {
@@ -58,11 +66,11 @@ async function invoiceapi(req, res) {
                 barCode: item,
                 profit:
                   (target.unitPrice - target.purchasedPrice) *
-                    parseInt(invoiceData.items[item]) +
+                  parseInt(invoiceData.items[item]) +
                   parseInt(product.profit),
                 itemSold: product.itemSold
                   ? parseInt(product.itemSold) +
-                    parseInt(invoiceData.items[item])
+                  parseInt(invoiceData.items[item])
                   : parseInt(invoiceData.items[item]),
               };
               await ProductReport.updateOne(
