@@ -12,9 +12,8 @@ async function invoiceapi(req, res) {
   const invoiceData = req.body;
   console.log(invoiceData);
   try {
-
+    
     let amountRemaining = (parseInt(invoiceData.debts) + parseInt(invoiceData.discountedTotall2) - parseInt(invoiceData.paidAmount));
-    console.log(amountRemaining)
     const newInvoice = new Invoice({
       customerName: invoiceData.customerName,
       customerPhone: invoiceData.customerPhone,

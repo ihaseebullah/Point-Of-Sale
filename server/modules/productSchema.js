@@ -11,12 +11,10 @@ const productSchema = new mongoose.Schema(
     category: String,
     unitPrice: {
       type: Number,
-      required: true,
     },
     expirayDate: String,
     purchasedAmount: {
       type: Number,
-      required: true,
     },
     profit: String,
     purchasedDate: String,
@@ -27,9 +25,8 @@ const productSchema = new mongoose.Schema(
     barCode: {
       type: String,
       sparse: true,
-      required: true,
     },
-    batchNo: { type: Number, required: true },
+    batchNo: { type: Number },
     stockQuantity: {
       type: Number,
       default: 0,
@@ -43,6 +40,13 @@ const productSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    image: String,
+    varientName: String,
+    brandName: String,
+    size: String,
+    reOrder: String,
+    tax: String,
+    comments: String,
   },
   { timestamps: true }
 );

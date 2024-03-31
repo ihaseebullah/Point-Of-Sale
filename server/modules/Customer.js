@@ -10,9 +10,8 @@ const cutomerSchema = new mongoose.Schema(
     country: { type: String },
     account: {
       type: Number,
-      unique: false
     },
-    accountNumber: { type: Number },
+    accountNumber: { type: String },
     assistedBy: String,
     invoices: Array,
     dueDate: String,

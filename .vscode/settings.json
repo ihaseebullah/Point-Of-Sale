@@ -1,4 +1,5 @@
 {
     "editor.minimap.side": "right",
-    "workbench.sideBar.location": "right"
+    "workbench.sideBar.location": "left",
+    "workbench.editor.openSideBySideDirection": "right"
 }

@@ -6,7 +6,8 @@ const statsSchema = new mongoose.Schema(
     month: { type: Number, required: true },
     monthName: { type: String, required: true },
     returnCounter: { type: Number, default: 0 },
-    purchasesCounter: { type: Number, default: 0 }
+    purchasesCounter: { type: Number, default: 0 },
+
   },
   { timestamps: true }
 );
